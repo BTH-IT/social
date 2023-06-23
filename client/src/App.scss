@@ -1,0 +1,102 @@
+.swiper-slide {
+  cursor: pointer;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  width: 24px !important;
+  height: 24px !important;
+  color: #383838 !important;
+  border-radius: 50%;
+  background-color: white;
+  transform: translateY(50%);
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+
+  &::after {
+    font-size: 1.2rem !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+  }
+}
+
+.swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.4 !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.swiper-pagination-bullet.swiper-pagination-bullet-active {
+  opacity: 1 !important;
+}
+
+.stop-scrolling {
+    height: 100%;
+    overflow: hidden;
+}
+
+.post-image {
+  width: 100%;
+  height: 100%;
+}
+
+.post-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.story-name {
+  text-align: center;
+  display: block;
+  margin-top: 10px;
+}
+
+.modal-container {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-body {
+  position: relative;
+  z-index: 10;
+}
+
+.link.active {
+  i {
+    display: none;
+  }
+
+  .active {
+    display: block;
+  }
+}
+
+.link {
+  .active {
+    display: none;
+  }
+}
+
+.avatar-link {
+  text-decoration: none;
+  color: black;
+}
+
+a {
+  outline: none;
+}
+
+@media screen and (max-width: 1024px) {
+  .is-mobile {
+    display: none;
+  }
+}

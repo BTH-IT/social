@@ -1,0 +1,24 @@
+const mongoose = require("mongoose");
+
+const PostSchema = mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true,
+    },
+
+    desc: String,
+    saved: [],
+    likes: [],
+    comments: [],
+    fileUploads: {
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const PostModel = mongoose.model("Posts", PostSchema);
+
+module.exports = PostModel;
