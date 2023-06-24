@@ -3,7 +3,6 @@ import { io } from "socket.io-client";
 import mentionsInputStyles from "./mentionsInputStyles";
 
 export const SERVER = "http://localhost:8080/";
-export const SOCKET_SERVER = io("http://localhost:5000/");
 
 export const customStyle = merge({}, mentionsInputStyles, {
   input: {

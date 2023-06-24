@@ -4,11 +4,13 @@ import postApi from "../../api/postApi";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
-import { SOCKET_SERVER, customStyle } from "../../utils/constant";
+import { customStyle } from "../../utils/constant";
 import { Mention, MentionsInput } from "react-mentions";
 import mentionsStyles from "../../utils/mentionsStyles";
 import { UserType } from "./Post";
 import userApi from "../../api/userApi";
+import { SOCKET_SERVER } from "../../App";
+import notiApi from "../../api/notiApi";
 
 const StyledPostComment = styled.div`
   border-top: 2px solid rgb(239, 239, 239);
@@ -61,6 +63,7 @@ const PostComment = ({
   content: string;
   setContent: React.Dispatch<React.SetStateAction<string>>;
 }) => {
+  if (!commentRef) return;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.auth.currentUser);
@@ -68,13 +71,13 @@ const PostComment = ({
   const [userList, setUserList] = useState<UserMentionType[] | []>([]);
 
   useEffect(() => {
-    if (commentRef.current) {
+    if (commentRef && commentRef.current) {
       commentRef.current.blur();
       window.scrollTo({
         top: 0,
       });
     }
-  }, [commentRef.current]);
+  }, [commentRef]);
 
   useEffect(() => {
     try {
@@ -141,7 +144,19 @@ const PostComment = ({
         const { data: post } = await postApi.commentPost(postId, data);
         (commentRef.current as HTMLInputElement).value = "";
         setContent("");
-        SOCKET_SERVER.emit("add-comment", post);
+        let notification = null;
+        if (post.userId !== currentUser._id) {
+          notification = {
+            type: "add-comment",
+            post,
+            userLiked: currentUser,
+            message: "commented on your post",
+            createdAt: new Date(),
+          };
+          await notiApi.addNotificationByUserId(notification, post.userId);
+        }
+
+        SOCKET_SERVER.emit("add-comment", post, notification);
 
         (commentRef.current as HTMLInputElement).dataset.parentId = "";
         (commentRef.current as HTMLInputElement).dataset.parentCommentId = "";

@@ -10,8 +10,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { authActions } from "../../redux/features/auth/authSlice";
 import { useAppDispatch } from "../../app/hooks";
 import { FileNameType } from "../Create/Create";
-import { SERVER, SOCKET_SERVER } from "../../utils/constant";
+import { SERVER } from "../../utils/constant";
 import { CommentType } from "./PostDetail";
+import { SOCKET_SERVER } from "../../App";
 
 export interface PostType {
   _id: string;
@@ -107,8 +108,10 @@ const Post = ({ post }: { post: PostType }) => {
 
   useEffect(() => {
     if (SOCKET_SERVER) {
-      SOCKET_SERVER.on("added-comment", (post) => {
-        setComments(post.comments);
+      SOCKET_SERVER.on("added-comment", (socketPost) => {
+        if (socketPost._id === post._id) {
+          setComments(socketPost.comments);
+        }
       });
     }
   }, []);

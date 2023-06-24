@@ -7,8 +7,9 @@ import postApi from "../../api/postApi";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { PostType } from "./Post";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { SOCKET_SERVER } from "../../utils/constant";
 import notiApi from "../../api/notiApi";
+import { SOCKET_SERVER } from "../../App";
+import { useToggle } from "../../hooks/useToggle";
 
 const StyledPostInteractive = styled.div`
   display: flex;
@@ -84,21 +85,14 @@ const PostInfo = ({
   const [numLikes, setNumLikes] = useState<number>(post.likes?.length);
 
   useEffect(() => {
-    if (SOCKET_SERVER && currentUser) {
-      SOCKET_SERVER.on("liked-post", (post) => {
-        setNumLikes(post.likes?.length);
-        setHeart(
-          Boolean(post.likes.find((like: string) => like === currentUser?._id))
-        );
-      });
-
-      SOCKET_SERVER.on("saved-post", (post) => {
-        setSave(
-          Boolean(post.saved.find((save: string) => save === currentUser?._id))
-        );
+    if (SOCKET_SERVER) {
+      SOCKET_SERVER.on("liked-post", (socketPost) => {
+        if (socketPost._id === post._id) {
+          setNumLikes(socketPost.likes.length);
+        }
       });
     }
-  }, [currentUser]);
+  }, [post]);
 
   const handleHeartPost = async () => {
     try {
@@ -108,17 +102,16 @@ const PostInfo = ({
         }
 
         if (heart) {
-          post.likes?.splice(
-            post.likes?.findIndex((like) => like === currentUser?._id),
-            1
+          post.likes = post.likes.filter(
+            (like: string) => like !== currentUser?._id
           );
         } else {
           post.likes?.push(currentUser._id);
         }
-        setHeart(!heart);
+        setHeart((prev) => !prev);
         setNumLikes(post.likes?.length);
         let notification = null;
-        if (heart) {
+        if (heart && post.userId !== currentUser._id) {
           notification = {
             type: "like-post",
             post,
@@ -128,7 +121,7 @@ const PostInfo = ({
           };
           await notiApi.addNotificationByUserId(notification, post.userId);
         }
-        SOCKET_SERVER?.emit("noti-like-post", post, notification);
+        SOCKET_SERVER?.emit("like-post", post, notification);
       }
     } catch (error: any) {
       if (error.response.status === 401) {
@@ -153,8 +146,7 @@ const PostInfo = ({
         } else {
           post.saved?.push(currentUser._id);
         }
-        setSave(!save);
-        SOCKET_SERVER?.emit("save-post", post);
+        setSave((prev) => !prev);
       }
     } catch (error: any) {
       if (error.response.status === 401) {

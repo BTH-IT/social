@@ -6,9 +6,11 @@ import postApi from "../../api/postApi";
 import userApi from "../../api/userApi";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { SERVER, SOCKET_SERVER } from "../../utils/constant";
+import { SERVER } from "../../utils/constant";
 import Avatar from "../Avatar/Avatar";
 import { CommentType } from "../Posts/PostDetail";
+import { SOCKET_SERVER } from "../../App";
+import notiApi from "../../api/notiApi";
 
 const StyledComment = styled.div`
   font-size: 1.2rem;
@@ -104,7 +106,22 @@ const CommentWithReply = ({
           commentParent.likes?.push(currentUser._id);
         }
         setHeart(!heart);
-        SOCKET_SERVER.emit("heart-comment", post);
+        let notification = null;
+        if (heart && post.userId !== currentUser._id) {
+          notification = {
+            type: "like-comment",
+            post,
+            comment: commentParent,
+            userLiked: currentUser,
+            message: "liked your comment",
+            createdAt: new Date(),
+          };
+          await notiApi.addNotificationByUserId(
+            notification,
+            commentParent.userId
+          );
+        }
+        SOCKET_SERVER.emit("heart-comment", post, notification);
       }
     } catch (error: any) {
       if (error.response.status === 401) {

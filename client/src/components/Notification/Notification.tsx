@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import Button from "../Button/Button";
 import NotificationItem from "./NotificationItem";
-import { SOCKET_SERVER } from "../../utils/constant";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import notiApi from "../../api/notiApi";
 import { useNavigate } from "react-router-dom";
 import { authActions } from "../../redux/features/auth/authSlice";
+import { SOCKET_SERVER } from "../../App";
 
 const StyledNoti = styled.div`
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -21,6 +20,11 @@ const StyledNoti = styled.div`
   transform: translateX(-100%);
   transition: all 0.2s linear;
   border-radius: 0 20px 20px 0;
+
+  .notification-container {
+    flex: 1;
+    overflow-y: auto;
+  }
 
   .notification-title {
     font-size: 2.4rem;
@@ -47,6 +51,13 @@ const StyledNoti = styled.div`
       width: 100%;
       height: 100%;
       object-fit: cover;
+    }
+    &_message {
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* number of lines to show */
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
     &_content {
@@ -76,11 +87,11 @@ const Notification = ({ noti }: { noti?: boolean }) => {
 
   useEffect(() => {
     if (SOCKET_SERVER) {
-      SOCKET_SERVER?.on("noti-like-post", (notification) => {
-        console.log(notification);
+      SOCKET_SERVER.on("noti", (notification) => {
+        setNotifications((prev) => [notification, ...prev]);
       });
     }
-  }, []);
+  }, [SOCKET_SERVER]);
 
   useEffect(() => {
     async function fetchNotifications() {
@@ -90,7 +101,7 @@ const Notification = ({ noti }: { noti?: boolean }) => {
             currentUser._id
           );
 
-          setNotifications(notiList);
+          setNotifications(notiList.notifications);
         }
       } catch (error: any) {
         if (error.response.status === 401) {
@@ -111,9 +122,13 @@ const Notification = ({ noti }: { noti?: boolean }) => {
     >
       <h4 className="notification-title">Notifications</h4>
       <div className="notification-container">
-        <NotificationItem
-          userId={"64955032a62e79987236bba2"}
-        ></NotificationItem>
+        {notifications?.length > 0 &&
+          notifications.map((notiInfo, index) => (
+            <NotificationItem
+              key={index}
+              notiInfo={notiInfo}
+            ></NotificationItem>
+          ))}
       </div>
     </StyledNoti>
   );

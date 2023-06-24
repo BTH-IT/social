@@ -4,8 +4,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.scss";
 import { useAppSelector } from "./app/hooks";
-import { SOCKET_SERVER } from "./utils/constant";
 import storyApi from "./api/storyApi";
+import { io } from "socket.io-client";
 
 const Main = React.lazy(() => import("./layouts/Main/Main"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFound/NotFoundPage"));
@@ -25,8 +25,11 @@ const PostDetailPage = React.lazy(
 const Messenger = React.lazy(() => import("./pages/Messenger/Messenger"));
 const PostGrid = React.lazy(() => import("./components/PostGrid/PostGrid"));
 
+export let SOCKET_SERVER = io("http://localhost:5000/");
+
 function App() {
   const currentUser = useAppSelector((state) => state.auth.currentUser);
+  const loginSuccess = useAppSelector((state) => state.auth.isLoggedIn);
 
   useEffect(() => {
     async function updateStoryNotExpired() {
@@ -37,12 +40,17 @@ function App() {
       }
     }
 
-    if (SOCKET_SERVER && currentUser && currentUser._id) {
-      SOCKET_SERVER.emit("new-user-add", currentUser._id);
-
+    if (currentUser && currentUser._id) {
       updateStoryNotExpired();
     }
-  }, [currentUser, currentUser?._id]);
+  }, [loginSuccess]);
+
+  useLayoutEffect(() => {
+    if (currentUser && currentUser._id) {
+      SOCKET_SERVER = io("http://localhost:5000/");
+      SOCKET_SERVER.emit("connected", currentUser._id);
+    }
+  }, [currentUser]);
 
   return (
     <div className="App">

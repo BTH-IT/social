@@ -15,7 +15,7 @@ async function createNotification(req, res) {
 
 async function getNotificationByUserId(req, res) {
   try {
-    const notification = await NotificationModel.find({
+    const notification = await NotificationModel.findOne({
       userId: req.params.userId,
     });
     res.status(200).json(notification);
@@ -31,13 +31,13 @@ async function addNotificationByUserId(req, res) {
     });
 
     notification.notifications = [
-      ...notification.notifications,
       req.body.notification,
+      ...notification.notifications,
     ];
 
     await NotificationModel.updateOne(
       {
-        userId: req.body.userId,
+        userId: req.params.userId,
       },
       {
         notifications: notification.notifications,

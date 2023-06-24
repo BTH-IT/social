@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserType } from "../../../components/Posts/Post";
 import { LoginType } from "../../../components/RightLogin/RightLogin";
+import { SOCKET_SERVER } from "../../../App";
 
 export interface AuthState {
   isLoggedIn: boolean;
@@ -33,6 +34,7 @@ const authSlide = createSlice({
     logout(state) {
       state.isLoggedIn = false;
       state.currentUser = undefined;
+      SOCKET_SERVER.disconnect();
     }
   }
 })

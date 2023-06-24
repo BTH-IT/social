@@ -5,7 +5,7 @@ import chatApi from "../../api/chatApi";
 import { useAppSelector } from "../../app/hooks";
 import ChatBox, { MessageSendType } from "./ChatBox";
 import Conversation, { ChatType } from "./Conversation";
-import { SOCKET_SERVER } from "../../utils/constant";
+import { SOCKET_SERVER } from "../../App";
 
 const StyledMessage = styled.div`
   padding: 20px;

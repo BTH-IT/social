@@ -5,15 +5,16 @@ import styled from "styled-components";
 import userApi from "../../api/userApi";
 import { useAppDispatch } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { SERVER, SOCKET_SERVER } from "../../utils/constant";
+import { SERVER } from "../../utils/constant";
 import Avatar from "../Avatar/Avatar";
-import CommentWithReply, { StyledTime } from "../Comment/CommentWithReply";
+import { StyledTime } from "../Comment/CommentWithReply";
 import { PostType, UserType } from "./Post";
 import PostComment from "./PostComment";
 import PostHeading from "./PostHeading";
 import PostInfo from "./PostInfo";
 import PostSlide from "./PostSlide";
 import CommentList from "../Comment/CommentList";
+import { SOCKET_SERVER } from "../../App";
 
 const StyledInteractive = styled.div`
   border-top: 1px solid rgb(219, 219, 219);
@@ -92,12 +93,16 @@ const PostDetail = ({ post }: { post: PostType }) => {
 
   useEffect(() => {
     if (SOCKET_SERVER) {
-      SOCKET_SERVER.on("added-comment", (post) => {
-        setComments(post.comments);
+      SOCKET_SERVER.on("added-comment", (socketPost) => {
+        if (socketPost._id === post._id) {
+          setComments(socketPost.comments);
+        }
       });
 
-      SOCKET_SERVER.on("hearted-comment", (post) => {
-        setComments(post.comments);
+      SOCKET_SERVER.on("hearted-comment", (socketPost) => {
+        if (socketPost._id === post._id) {
+          setComments(post.comments);
+        }
       });
     }
   }, []);

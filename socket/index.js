@@ -31,13 +31,26 @@ const io = require("socket.io")(process.env.PORT || 5000, {
 
 io.on("connection", (socket) => {
   // add new user
-  socket.on("new-user-add", async (newUserId) => {
+  socket.on("connected", async (newUserId) => {
+    console.log(newUserId);
+    console.log(socket.id);
     let activeUsers = await ActiveModel.find({});
     if (!activeUsers.some((user) => user.userId === newUserId)) {
       await ActiveModel.create({
         userId: newUserId,
         socketId: socket.id,
       });
+      console.log("connect");
+    } else {
+      await ActiveModel.updateOne(
+        {
+          userId: newUserId,
+        },
+        {
+          socketId: socket.id,
+        }
+      );
+      console.log("re-connect");
     }
 
     activeUsers = await ActiveModel.find({});
@@ -53,9 +66,9 @@ io.on("connection", (socket) => {
 
   // disconnect socket server
   socket.on("disconnect", async () => {
+    console.log("disconnect");
     await ActiveModel.deleteOne({ socketId: socket.id });
     const activeUsers = await ActiveModel.find({});
-    console.log(activeUsers, socket.id);
     io.emit("get-users", activeUsers);
   });
 
@@ -74,21 +87,30 @@ io.on("connection", (socket) => {
     const user = activeUsers.find((user) => user.userId === post.userId);
 
     if (user && notification !== null) {
-      io.to(user.socketId).emit("noti-like-post", notification);
+      io.to(user.socketId).emit("noti", notification);
     }
-
     io.emit("liked-post", post);
   });
 
-  socket.on("save-post", (post) => {
-    io.emit("saved-post", post);
-  });
+  socket.on("add-comment", async (post, notification) => {
+    const activeUsers = await ActiveModel.find({});
+    const user = activeUsers.find((user) => user.userId === post.userId);
 
-  socket.on("add-comment", (post) => {
+    if (user && notification !== null) {
+      io.to(user.socketId).emit("noti", notification);
+    }
+
     io.emit("added-comment", post);
   });
 
-  socket.on("heart-comment", (comment) => {
-    io.emit("hearted-comment", comment);
+  socket.on("heart-comment", async (post, notification) => {
+    const activeUsers = await ActiveModel.find({});
+    const user = activeUsers.find((user) => user.userId === post.userId);
+
+    if (user && notification !== null) {
+      io.to(user.socketId).emit("noti", notification);
+    }
+
+    io.emit("hearted-comment", post);
   });
 });
