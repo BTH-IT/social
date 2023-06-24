@@ -116,10 +116,7 @@ const CommentWithReply = ({
             message: "liked your comment",
             createdAt: new Date(),
           };
-          await notiApi.addNotificationByUserId(
-            notification,
-            commentParent.userId
-          );
+          await notiApi.addNotificationByUserId(notification, post.userId);
         }
         SOCKET_SERVER.emit("heart-comment", post, notification);
       }
@@ -140,6 +137,7 @@ const CommentWithReply = ({
       if (commentId && userId && commentRef && commentRef.current) {
         try {
           const { data: user } = await userApi.get(userId);
+          commentRef.current.dataset.userId = userId;
           commentRef.current.dataset.parentId = commentId;
           commentRef.current.dataset.parentCommentId = parentCommentId;
           setContent(`@[${user.username}](${user.fullname}) `);
@@ -188,7 +186,7 @@ const CommentWithReply = ({
                 ref={replyRef}
                 data-comment-id={commentParent.id}
                 data-user-id={commentParent.userId}
-                data-parent-comment-id={commentParent.parentId}
+                data-parent-comment-id={commentParent.parentId || ""}
               >
                 Reply
               </StyledReply>

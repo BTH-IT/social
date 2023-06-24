@@ -123,14 +123,17 @@ const PostComment = ({
 
     if (currentUser?.username && currentUser?._id) {
       let parentId = undefined;
+      const commentUserId = commentRef.current?.dataset.userId;
 
       if (
         commentRef.current?.dataset.parentId &&
-        commentRef.current?.dataset.parentCommentId !== "undefined"
+        commentRef.current?.dataset.parentCommentId
       ) {
         parentId = commentRef.current?.dataset.parentCommentId;
       } else if (commentRef.current?.dataset.parentId) {
         parentId = commentRef.current?.dataset.parentId;
+      } else {
+        parentId = undefined;
       }
 
       try {
@@ -142,22 +145,38 @@ const PostComment = ({
         };
 
         const { data: post } = await postApi.commentPost(postId, data);
-        (commentRef.current as HTMLInputElement).value = "";
-        setContent("");
+
         let notification = null;
-        if (post.userId !== currentUser._id) {
-          notification = {
-            type: "add-comment",
-            post,
-            userLiked: currentUser,
-            message: "commented on your post",
-            createdAt: new Date(),
-          };
-          await notiApi.addNotificationByUserId(notification, post.userId);
+        if (
+          post.userId !== currentUser._id ||
+          commentUserId !== currentUser._id
+        ) {
+          if (parentId === undefined) {
+            notification = {
+              type: "add-comment",
+              post,
+              userLiked: currentUser,
+              message: "commented on this post",
+              createdAt: new Date(),
+            };
+            await notiApi.addNotificationByUserId(notification, post.userId);
+          } else if (commentUserId) {
+            console.log(commentUserId);
+            notification = {
+              type: "reply-comment",
+              post,
+              userLiked: currentUser,
+              message: "replied your comment on this post",
+              createdAt: new Date(),
+            };
+            await notiApi.addNotificationByUserId(notification, commentUserId);
+          }
         }
 
         SOCKET_SERVER.emit("add-comment", post, notification);
 
+        (commentRef.current as HTMLInputElement).value = "";
+        setContent("");
         (commentRef.current as HTMLInputElement).dataset.parentId = "";
         (commentRef.current as HTMLInputElement).dataset.parentCommentId = "";
       } catch (error: any) {

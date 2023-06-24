@@ -101,7 +101,7 @@ const PostDetail = ({ post }: { post: PostType }) => {
 
       SOCKET_SERVER.on("hearted-comment", (socketPost) => {
         if (socketPost._id === post._id) {
-          setComments(post.comments);
+          setComments(socketPost.comments);
         }
       });
     }

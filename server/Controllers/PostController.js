@@ -83,6 +83,10 @@ async function commentPost(req, res) {
   try {
     const post = await PostModel.findById(postId);
 
+    if (req.body.parentId === "undefined") {
+      req.body.parentId = null;
+    }
+
     await post.updateOne({
       $push: {
         comments: {
