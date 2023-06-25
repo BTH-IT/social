@@ -115,7 +115,7 @@ const PostInfo = ({
           notification = {
             type: "like-post",
             post,
-            userLiked: currentUser,
+            userAction: currentUser,
             message: "liked your post",
             createdAt: new Date(),
           };

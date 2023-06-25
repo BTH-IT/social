@@ -91,7 +91,7 @@ const Notification = ({ noti }: { noti?: boolean }) => {
         setNotifications((prev) => [notification, ...prev]);
       });
     }
-  }, [SOCKET_SERVER]);
+  }, []);
 
   useEffect(() => {
     async function fetchNotifications() {

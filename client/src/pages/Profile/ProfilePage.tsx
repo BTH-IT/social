@@ -22,6 +22,9 @@ import { ChatType } from "../Messenger/Conversation";
 import { StoryType } from "../../components/StoryAvatarSlide/StoryAvatarSlide";
 import AvatarStory from "../../components/Avatar/AvatarStory";
 import Avatar from "../../components/Avatar/Avatar";
+import storyApi from "../../api/storyApi";
+import { SOCKET_SERVER } from "../../App";
+import notiApi from "../../api/notiApi";
 
 const StyledProfilePage = styled.div`
   max-width: 935px;
@@ -217,6 +220,7 @@ export const StyledChangePhoto = styled.div`
 
 const Following = ({ onClick }: { onClick: () => void }) => {
   const { userId } = useParams();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const currentUser: UserType | null = JSON.parse(
     localStorage.getItem("current_user") || ""
@@ -229,7 +233,16 @@ const Following = ({ onClick }: { onClick: () => void }) => {
 
         currentUser.followings.push(userId);
         localStorage.setItem("current_user", JSON.stringify(currentUser));
-        window.location.reload();
+        dispatch(authActions.updateCurrentUser(currentUser));
+
+        const notification = {
+          type: "follow",
+          userAction: currentUser,
+          message: "started following you",
+          createdAt: new Date(),
+        };
+        await notiApi.addNotificationByUserId(notification, userId);
+        SOCKET_SERVER.emit("follow", userId, notification);
       }
     } catch (error: any) {
       console.log(error.message);
@@ -291,8 +304,10 @@ const ProfilePage = () => {
         if (userId) {
           const resUser = await userApi.get(userId);
           const resPosts = await postApi.getYourTimeline(userId);
+          const resStory = await storyApi.getStoryByUserId(userId);
           setUser(resUser.data);
           setPosts(resPosts.data);
+          setStory(resStory.data);
         }
       } catch (error: any) {
         if (error.response.status === 404) {
@@ -304,7 +319,7 @@ const ProfilePage = () => {
       }
     }
     fetchProfile();
-  }, [navigate, userId]);
+  }, [navigate, userId, currentUser]);
 
   return (
     <>

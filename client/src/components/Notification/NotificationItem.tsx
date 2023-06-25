@@ -14,25 +14,24 @@ import { CommentType } from "../Posts/PostComment";
 
 interface NotificationItemType {
   type: string;
-  post: PostType;
+  post?: PostType;
   comment?: CommentType;
-  userLiked: UserType;
+  userAction: UserType;
   message: string;
   createdAt: string;
 }
 
 const NotificationItem = ({ notiInfo }: { notiInfo: NotificationItemType }) => {
   const [story, setStory] = useState<StoryType | null>(null);
-  const currentUser = useAppSelector((state) => state.auth.currentUser);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     async function fetchStory() {
-      if (notiInfo.userLiked._id) {
+      if (notiInfo.userAction._id) {
         try {
           const { data: story } = await storyApi.getStoryByUserId(
-            notiInfo.userLiked._id
+            notiInfo.userAction._id
           );
           setStory(story);
         } catch (error: any) {
@@ -53,36 +52,36 @@ const NotificationItem = ({ notiInfo }: { notiInfo: NotificationItemType }) => {
         <Link to={`/stories/${story._id}`} className="avatar-link">
           <AvatarStory
             story={story ? 1 : 0}
-            href={`/${notiInfo.userLiked._id}`}
+            href={`/${notiInfo.userAction._id}`}
             style={{
               width: "44px",
               height: "44px",
             }}
             url={
-              notiInfo.userLiked.profilePicture
-                ? `${SERVER}files/${notiInfo.userLiked.profilePicture}`
+              notiInfo.userAction.profilePicture
+                ? `${SERVER}files/${notiInfo.userAction.profilePicture}`
                 : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
             }
           ></AvatarStory>
         </Link>
       ) : (
         <Avatar
-          href={`/${notiInfo.userLiked._id}`}
+          href={`/${notiInfo.userAction._id}`}
           style={{
             width: "44px",
             height: "44px",
           }}
           url={
-            notiInfo.userLiked.profilePicture
-              ? `${SERVER}files/${notiInfo.userLiked.profilePicture}`
+            notiInfo.userAction.profilePicture
+              ? `${SERVER}files/${notiInfo.userAction.profilePicture}`
               : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
           }
         ></Avatar>
       )}
       <div className="notification-item_content">
         <span className="notification-item_message">
-          <a href={`/${notiInfo.userLiked._id}`}>
-            <b>{notiInfo.userLiked.username}</b>
+          <a href={`/${notiInfo.userAction._id}`}>
+            <b>{notiInfo.userAction.username}</b>
           </a>{" "}
           {notiInfo.message}
           {notiInfo.comment ? `: ${notiInfo.comment.content}` : "."}
@@ -94,6 +93,7 @@ const NotificationItem = ({ notiInfo }: { notiInfo: NotificationItemType }) => {
       <NotificationItemLeft
         type={notiInfo.type}
         post={notiInfo.post}
+        userAction={notiInfo.userAction}
       ></NotificationItemLeft>
     </div>
   );

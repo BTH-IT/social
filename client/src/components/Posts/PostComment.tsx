@@ -169,7 +169,7 @@ const PostComment = ({
             notification = {
               type: "add-comment",
               post,
-              userLiked: currentUser,
+              userAction: currentUser,
               message: "commented on this post",
               createdAt: new Date(),
             };
@@ -179,7 +179,7 @@ const PostComment = ({
             notification = {
               type: "reply-comment",
               post,
-              userLiked: currentUser,
+              userAction: currentUser,
               message: "replied your comment on this post",
               createdAt: new Date(),
             };

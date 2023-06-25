@@ -35,6 +35,9 @@ const authSlide = createSlice({
       state.isLoggedIn = false;
       state.currentUser = undefined;
       SOCKET_SERVER.disconnect();
+    },
+    updateCurrentUser(state, action: PayloadAction<UserType>) {
+      state.currentUser = action.payload;
     }
   }
 })

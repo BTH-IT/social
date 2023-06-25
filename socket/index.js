@@ -113,4 +113,13 @@ io.on("connection", (socket) => {
 
     io.emit("hearted-comment", post);
   });
+
+  socket.on("follow", async (userId, notification) => {
+    const activeUsers = await ActiveModel.find({});
+    const user = activeUsers.find((user) => user.userId === userId);
+
+    if (user && notification !== null) {
+      io.to(user.socketId).emit("noti", notification);
+    }
+  });
 });

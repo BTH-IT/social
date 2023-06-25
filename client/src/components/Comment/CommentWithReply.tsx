@@ -150,7 +150,7 @@ const CommentWithReply = ({
             type: "like-comment",
             post,
             comment: commentParent,
-            userLiked: currentUser,
+            userAction: currentUser,
             message: "liked your comment",
             createdAt: new Date(),
           };
