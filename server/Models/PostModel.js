@@ -15,6 +15,10 @@ const PostSchema = mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       required: true,
     },
+    feeling: {
+      type: String,
+    },
+    tagUser: [],
   },
   { timestamps: true }
 );

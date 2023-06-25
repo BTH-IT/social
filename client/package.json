@@ -13,6 +13,7 @@
     "@emoji-mart/react": "^1.1.1",
     "axios": "^1.4.0",
     "emoji-mart": "^5.5.2",
+    "emoji-picker-react": "^4.4.9",
     "emojivert-node": "^1.0.0",
     "history": "^5.3.0",
     "lodash.merge": "^4.6.2",

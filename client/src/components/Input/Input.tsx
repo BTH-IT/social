@@ -62,7 +62,7 @@ const Input = ({
     if (!defaultValue) {
       (inputRef.current as HTMLInputElement).value = "";
     }
-  });
+  }, []);
 
   return (
     <StyledInput className={`${className}`} primary={primary}>

@@ -25,6 +25,8 @@ export interface PostType {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  feeling?: string;
+  tagUser?: string[];
 }
 
 export interface UserType {

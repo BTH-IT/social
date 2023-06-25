@@ -12,13 +12,22 @@ import { authActions } from "../../redux/features/auth/authSlice";
 import AvatarStory from "../Avatar/AvatarStory";
 import { StoryType } from "../StoryAvatarSlide/StoryAvatarSlide";
 
-const StyledNameLink = styled.a`
+const StyledNameLink = styled.div`
   text-decoration: none;
   color: black;
 
-  :hover {
-    color: gray;
-    transition: all 0.15s ease;
+  a {
+    text-decoration: none;
+    color: black;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  span {
+    font-size: 1.2rem;
   }
 `;
 
@@ -82,7 +91,7 @@ const PostHeading = ({
     <>
       <StyledPostHeading>
         <div className="post-heading-info">
-          {story ? (
+          {story?.stories && story.stories.length ? (
             <Link to={`/stories/${story._id}`} className="avatar-link">
               <AvatarStory
                 story={story ? 1 : 0}
@@ -104,8 +113,35 @@ const PostHeading = ({
               url={avatar}
             ></Avatar>
           )}
-          <StyledNameLink href={`/${post.userId}`}>
-            <h6>{username}</h6>
+          <StyledNameLink>
+            <a href={`/${post.userId}`}>
+              <h6>{username}</h6>
+            </a>
+            {post.feeling ? <span>is feeling {post.feeling}</span> : ""}
+            {post.tagUser && post.tagUser.length > 0 ? (
+              <>
+                <span>
+                  with{" "}
+                  {post.tagUser.map((usr, idx) => {
+                    if (idx === 0) {
+                      return (
+                        <span>
+                          <a href={`/${usr}`}>{usr}</a>
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <span>
+                        ,<a href={`/${usr}`}>{usr}</a>
+                      </span>
+                    );
+                  })}
+                </span>
+              </>
+            ) : (
+              ""
+            )}
           </StyledNameLink>
         </div>
         <div onClick={() => setShow(true)}>

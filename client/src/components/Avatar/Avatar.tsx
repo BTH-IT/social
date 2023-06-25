@@ -16,6 +16,7 @@ const StyledAvatar = styled.a<AvatarProps>`
   background-clip: padding-box;
   border: solid 3px transparent;
   z-index: 1;
+  flex-shrink: 0;
 
   .avatar-img {
     width: 100%;
