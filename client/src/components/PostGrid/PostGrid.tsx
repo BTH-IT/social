@@ -10,8 +10,7 @@ import { PostType } from "../Posts/Post";
 const StyledPostGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, auto);
-  gap: 10px;
-  cursor: pointer;
+  gap: 20px;
 
   .profile-grid {
     &_item {
@@ -24,6 +23,11 @@ const StyledPostGrid = styled.div`
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: all 0.2s ease;
+        display: block;
+        &:hover {
+          background-color: #fafaf9;
+        }
       }
 
       &:hover {
@@ -78,27 +82,31 @@ const PostGrid = () => {
   return (
     <StyledPostGrid>
       {postList.length > 0 &&
-        postList
-          .filter((post) => post.fileUploads.length > 0)
-          .map((post) => (
-            <Link
-              to={`/p/${post._id}`}
-              className="profile-grid_item"
-              key={post._id}
-            >
-              {post.fileUploads[0].type === "image" ? (
-                <img
-                  src={`${SERVER}files/${post.fileUploads[0].filename}`}
-                  alt=""
-                />
-              ) : (
-                <video
-                  src={`${SERVER}files/${post.fileUploads[0].filename}`}
-                  controls
-                ></video>
-              )}
-            </Link>
-          ))}
+        postList.map((post) => (
+          <Link
+            to={`/p/${post._id}`}
+            className="profile-grid_item"
+            key={post._id}
+          >
+            {post.fileUploads.length > 0 ? (
+              <>
+                {post.fileUploads[0].type === "image" ? (
+                  <img
+                    src={`${SERVER}files/${post.fileUploads[0].filename}`}
+                    alt=""
+                  />
+                ) : (
+                  <video
+                    src={`${SERVER}files/${post.fileUploads[0].filename}`}
+                    controls
+                  ></video>
+                )}
+              </>
+            ) : (
+              <img src="/src/assets/file-post.svg" alt="" />
+            )}
+          </Link>
+        ))}
     </StyledPostGrid>
   );
 };

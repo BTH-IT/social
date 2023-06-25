@@ -1,5 +1,11 @@
 import { ChangeEvent, useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import chatApi from "../../api/chatApi";
@@ -13,6 +19,9 @@ import { PostType, UserType } from "../../components/Posts/Post";
 import { authActions } from "../../redux/features/auth/authSlice";
 import { SERVER } from "../../utils/constant";
 import { ChatType } from "../Messenger/Conversation";
+import { StoryType } from "../../components/StoryAvatarSlide/StoryAvatarSlide";
+import AvatarStory from "../../components/Avatar/AvatarStory";
+import Avatar from "../../components/Avatar/Avatar";
 
 const StyledProfilePage = styled.div`
   max-width: 935px;
@@ -37,7 +46,6 @@ const StyledProfilePage = styled.div`
       width: 150px;
       height: 150px;
       border-radius: 50%;
-      cursor: pointer;
       flex-shrink: 0;
 
       @media screen and (max-width: 786px) {
@@ -272,7 +280,7 @@ const ProfilePage = () => {
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const [user, setUser] = useState<UserType | undefined>(undefined);
   const [posts, setPosts] = useState<PostType[] | undefined>(undefined);
-  const [showModalPhoto, setShowModalPhoto] = useState<boolean>(false);
+  const [story, setStory] = useState<StoryType | undefined>(undefined);
   const [showModalCheck, setShowModalCheck] = useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -291,61 +299,45 @@ const ProfilePage = () => {
           navigate("/");
         } else if (error.response.status === 401) {
           navigate("/login");
+          dispatch(authActions.logout());
         }
       }
     }
     fetchProfile();
   }, [navigate, userId]);
 
-  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    if (!currentUser) return;
-    const file = (e.target.files as FileList)[0];
-    const data = new FormData();
-    const filename = Date.now() + file.name;
-    data.append("name", filename);
-    data.append("file", file);
-
-    const newUpdateUser: UserType = {
-      ...currentUser,
-      profilePicture: filename,
-    };
-
-    try {
-      if (currentUser?._id) {
-        await userApi.update(currentUser?._id, newUpdateUser);
-        await uploadFile(data);
-        localStorage.setItem("current_user", JSON.stringify(newUpdateUser));
-        window.location.reload();
-        toast.success("Update successfully");
-      }
-    } catch (error: any) {
-      if (error.response.status === 401) {
-        navigate("/login");
-        dispatch(authActions.logout());
-      } else if (error.response.status === 403) {
-        toast.warning("Nothing change at all");
-      } else toast.error("Update failure");
-    }
-  };
-
   return (
     <>
       <StyledProfilePage>
         <div className="profile-top">
-          <div
-            className="profile-image"
-            onClick={() => setShowModalPhoto(true)}
-          >
-            <img
-              src={
+          {story?.stories && story.stories.length ? (
+            <Link to={`/stories/${story._id}`} className="avatar-link">
+              <AvatarStory
+                story={story ? 1 : 0}
+                style={{
+                  width: "150px",
+                  height: "150px",
+                }}
+                url={
+                  user?.profilePicture
+                    ? `${SERVER}files/${user?.profilePicture}`
+                    : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+                }
+              ></AvatarStory>
+            </Link>
+          ) : (
+            <Avatar
+              style={{
+                width: "150px",
+                height: "150px",
+              }}
+              url={
                 user?.profilePicture
                   ? `${SERVER}files/${user?.profilePicture}`
                   : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
               }
-              alt=""
-              className="profile-img"
-            />
-          </div>
+            ></Avatar>
+          )}
           <div className="profile-info">
             <div className="profile-info_container">
               <span className="profile-username">{user?.username}</span>
@@ -402,36 +394,10 @@ const ProfilePage = () => {
               <i className="bi bi-bookmark"></i>
               Saved
             </NavLink>
-
-            <NavLink
-              end
-              to={`/${user?._id}/reels`}
-              className={({ isActive }) =>
-                isActive ? `profile-nav_item active` : `profile-nav_item`
-              }
-            >
-              <i className="bi bi-collection-play"></i>
-              Reels
-            </NavLink>
           </div>
           <Outlet></Outlet>
         </div>
       </StyledProfilePage>
-      <Modal
-        overlay={true}
-        onClose={() => setShowModalPhoto(false)}
-        visible={showModalPhoto}
-      >
-        <StyledChangePhoto>
-          <h2>Change Profile Photo</h2>
-          <label className="blue" htmlFor="upload-photo">
-            Upload Photo
-          </label>
-          <input type="file" hidden id="upload-photo" onChange={handleUpload} />
-          <div className="red">Remove Current Photo</div>
-          <div onClick={() => setShowModalPhoto(false)}>Cancel</div>
-        </StyledChangePhoto>
-      </Modal>
 
       <Modal
         overlay={true}
