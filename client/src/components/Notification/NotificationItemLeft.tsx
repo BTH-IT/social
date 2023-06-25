@@ -46,8 +46,6 @@ const NotificationItemLeft = ({
     );
   }, [currentUser]);
 
-  console.log(isFollowing);
-
   if (type !== "follow" && post !== undefined) {
     return (
       <StyledNotificationPost href={`/p/${post._id}`}>

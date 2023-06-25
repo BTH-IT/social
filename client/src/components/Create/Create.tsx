@@ -130,6 +130,13 @@ const StyledCreate = styled.form`
         }
       }
     }
+
+    @media screen and (max-width: 526px) {
+      padding: 10px;
+      h2 {
+        font-size: 1.6rem;
+      }
+    }
   }
 
   @media screen and (max-width: 526px) {

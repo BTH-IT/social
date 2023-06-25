@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import chatApi from "../../api/chatApi";
-import { useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import ChatBox, { MessageSendType } from "./ChatBox";
 import Conversation, { ChatType } from "./Conversation";
 import { SOCKET_SERVER } from "../../App";
+import { authActions } from "../../redux/features/auth/authSlice";
+import { toast } from "react-toastify";
 
 const StyledMessage = styled.div`
   padding: 20px;
@@ -139,7 +141,45 @@ const StyledMessage = styled.div`
       padding: 20px;
       border-top: 1px solid rgb(219, 219, 219);
       display: flex;
+      align-items: center;
       gap: 5px;
+
+      input {
+        width: 100%;
+        height: 100%;
+        outline: none;
+        border: none;
+        border-radius: 6px;
+        font-size: 1.6rem;
+        color: rgb(38, 38, 38);
+        font-weight: 200;
+        display: block;
+        padding: 10px;
+      }
+
+      .emoji-container {
+        position: relative;
+
+        .emoji-popup {
+          position: absolute;
+          bottom: 100%;
+          right: -50%;
+          transform: translateX(50%);
+          em-emoji-picker {
+            max-height: 200px;
+          }
+        }
+      }
+
+      i {
+        font-size: 2rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: #38bdf8;
+        }
+      }
 
       @media screen and (max-width: 526px) {
         padding: 4px;
@@ -159,6 +199,7 @@ const StyledMessage = styled.div`
 
 const Messenger = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const loginSuccess = useAppSelector((state) => state.auth.isLoggedIn);
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const [chats, setChats] = useState<ChatType[]>([]);
@@ -203,7 +244,12 @@ const Messenger = () => {
           const { data } = await chatApi.userChats(currentUser._id);
           setChats(data);
         }
-      } catch (error) {}
+      } catch (error: any) {
+        if (error.response.status === 401) {
+          navigate("/login");
+          dispatch(authActions.logout());
+        }
+      }
     }
 
     fetchChats();

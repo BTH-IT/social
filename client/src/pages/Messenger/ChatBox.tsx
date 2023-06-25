@@ -13,6 +13,10 @@ import { authActions } from "../../redux/features/auth/authSlice";
 import { ChatType } from "./Conversation";
 import { v4 as uuidv4 } from "uuid";
 import { SERVER } from "../../utils/constant";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+import { useClickOutside } from "../../hooks/useClickOutside";
+import { toast } from "react-toastify";
 
 interface MessageType {
   _id: string;
@@ -46,6 +50,7 @@ const ChatBox = ({
   const [otherUser, setOtherUser] = useState<UserType | null>(null);
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [text, setText] = useState<string>("");
+  const { show, setShow, elementRef } = useClickOutside();
   const scroll = useRef() as React.MutableRefObject<HTMLDivElement>;
 
   useEffect(() => {
@@ -84,18 +89,21 @@ const ChatBox = ({
           const { data } = await chatApi.getMessages(chat._id);
           setMessages(data);
         }
-      } catch (error) {}
+      } catch (error: any) {
+        if (error.response.status === 401) {
+          navigate("/login");
+          dispatch(authActions.logout());
+        } else {
+          toast.error("There is something wrong here");
+        }
+      }
     }
 
     fetchMessages();
   }, [chat?._id]);
 
-  const handleChange = debounce((e: ChangeEvent<HTMLInputElement>) => {
-    setText(e.target.value);
-  }, 100);
-
-  const handleSend = async () => {
-    if (!text) return;
+  const handleSend = async (e?: any) => {
+    if (!text || e?.code !== "Enter") return;
     const message = {
       senderId: currentUserId,
       text,
@@ -150,13 +158,37 @@ const ChatBox = ({
             ))}
           </div>
           <div className="messenger-right-field">
-            <Input
+            <div className="emoji-container" ref={elementRef}>
+              <i
+                className="bi bi-emoji-smile"
+                onClick={() => setShow(!show)}
+              ></i>
+              {show && (
+                <div className="emoji-popup">
+                  <Picker
+                    data={data}
+                    onEmojiSelect={(e: any) => {
+                      setText(`${text}${e.native}`);
+                      setShow(!show);
+                    }}
+                    emojiSize={20}
+                    emojiButtonSize={28}
+                    maxFrequentRows={0}
+                    previewPosition="none"
+                    theme="light"
+                    icons={"solid"}
+                  />
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
               placeholder="Typing message..."
               className="messenger-right-input"
-              onChange={handleChange}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
               onKeyPress={handleSend}
-              defaultValue={text}
-            ></Input>
+            />
             <Button primary={1} onClick={handleSend}>
               Send
             </Button>

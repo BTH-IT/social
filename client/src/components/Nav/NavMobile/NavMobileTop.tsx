@@ -1,7 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Input from "../../Input/Input";
+import userApi from "../../../api/userApi";
+import { toast } from "react-toastify";
+import { authActions } from "../../../redux/features/auth/authSlice";
+import { useAppDispatch } from "../../../app/hooks";
 
 const StyledNavMobileTop = styled.div`
   position: fixed;
@@ -58,13 +62,35 @@ const StyledNavMobileTop = styled.div`
 `;
 
 const NavMobileTop = () => {
+  const [value, setValue] = useState<string>("");
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   return (
     <StyledNavMobileTop>
       <Link to="/" className="logo">
         𝘽𝙏𝙃 𝙎𝙤𝙘𝙞𝙖𝙡
       </Link>
       <div className="right">
-        <Input placeholder="Search" hasIcon primary={1}></Input>
+        <Input
+          placeholder="Search"
+          hasIcon
+          primary={1}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyPress={async (e: React.KeyboardEvent) => {
+            if (e.code !== "Enter") return;
+            try {
+              const { data } = await userApi.getUserIdByUsername(value);
+              navigate("/" + data);
+            } catch (error: any) {
+              if (error.response.status === 401) {
+                navigate("/login");
+                dispatch(authActions.logout());
+              } else {
+                toast.error("no username: " + value);
+              }
+            }
+          }}
+        ></Input>
         <Link to="/accounts/notification" className="notification">
           <i className="bi bi-heart"></i>
         </Link>

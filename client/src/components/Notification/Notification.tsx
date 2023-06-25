@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { authActions } from "../../redux/features/auth/authSlice";
 import { SOCKET_SERVER } from "../../App";
 
-const StyledNoti = styled.div`
+export const StyledNoti = styled.div`
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   display: flex;
   flex-direction: column;
