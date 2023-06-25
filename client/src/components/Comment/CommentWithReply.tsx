@@ -44,6 +44,10 @@ const StyledCommentContent = styled.div`
   gap: 10px;
   flex: 1;
   align-items: flex-start;
+
+  a {
+    font-weight: 500;
+  }
 `;
 
 const StyledInteractive = styled.div`
@@ -87,6 +91,40 @@ const CommentWithReply = ({
     Boolean(commentParent.likes?.find((like) => like === currentUser?._id))
   );
   const replyRef = useRef<HTMLDivElement | null>(null);
+  const [commentContent, setCommentContent] = useState<string>("");
+
+  useEffect(() => {
+    async function fetchUser() {
+      if (commentParent.content !== "") {
+        const regex = /@\[.+?\]\(.+?\)/gm;
+        const displayRegex = /@\[.+?\]/g;
+        const idRegex = /\(.+?\)/g;
+        const matches = commentParent.content.match(regex);
+        const arr: any[] = [];
+        matches?.forEach((m: any) => {
+          const id = m.match(idRegex)[0].replace("(", "").replace(")", "");
+          const display = m
+            .match(displayRegex)[0]
+            .replace("@[", "")
+            .replace("]", "");
+          arr.push({ id: id, display: display });
+        });
+        const newComment = commentParent.content.split(regex);
+        let output = "";
+        for (let i = 0; i < newComment.length; i++) {
+          const c = newComment[i];
+          if (i === newComment.length - 1) output += c;
+          else {
+            const { data } = await userApi.getUserIdByUsername(arr[i].display);
+            output += c + `<a href="/${data}">@${arr[i].display}</a>`;
+          }
+        }
+        setCommentContent(output);
+      }
+    }
+
+    fetchUser();
+  }, [commentParent.content]);
 
   const handleHeartComment = async () => {
     try {
@@ -173,7 +211,13 @@ const CommentWithReply = ({
             <a href={`/${commentParent.userId}`}>
               <h6>{commentParent.username}</h6>
             </a>{" "}
-            {commentParent.content}
+            <span
+              dangerouslySetInnerHTML={{
+                __html: commentContent.replace(/\n\r?/g, "<br />"),
+              }}
+            >
+              {/* {commentContent} */}
+            </span>
             <StyledInteractive>
               <StyledTime>
                 {moment(commentParent.createdAt).fromNow()}

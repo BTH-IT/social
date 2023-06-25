@@ -69,6 +69,20 @@ const PostComment = ({
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const postBtnRef = useRef<HTMLDivElement | null>(null);
   const [userList, setUserList] = useState<UserMentionType[] | []>([]);
+  const [emojiValue, setEmojiValue] = useState([]);
+  const notMatchingRegex = /($a)/;
+
+  useEffect(() => {
+    fetch(
+      "https://gist.githubusercontent.com/oliveratgithub/0bf11a9aff0d6da7b46f1490f86a71eb/raw/d8e4b78cfe66862cf3809443c1dba017f37b61db/emojis.json"
+    )
+      .then((data) => {
+        return data.json();
+      })
+      .then((jsonData) => {
+        setEmojiValue(jsonData.emojis);
+      });
+  }, []);
 
   useEffect(() => {
     if (commentRef && commentRef.current) {
@@ -116,10 +130,10 @@ const PostComment = ({
   const handlePostComment = async () => {
     if (!content) return;
 
-    const newContent = content.replace(
-      /(\[|\]|\(([A-Za-z1-9\s]|[^\u0000-\u007F]+)+\))/g,
-      ""
-    );
+    // const newContent = content.replace(
+    //   /(\[|\]|\(([A-Za-z1-9\s]|[^\u0000-\u007F]+)+\))/g,
+    //   ""
+    // );
 
     if (currentUser?.username && currentUser?._id) {
       let parentId = undefined;
@@ -139,7 +153,7 @@ const PostComment = ({
       try {
         const data = {
           username: currentUser.username,
-          content: newContent,
+          content,
           parentId,
           userId: currentUser._id,
         };
@@ -188,6 +202,16 @@ const PostComment = ({
     }
   };
 
+  const queryEmojis = (query: any, callback: any) => {
+    if (query.length === 0) return;
+    const filterValue = emojiValue
+      .filter((emoji: any) => {
+        return emoji.name.indexOf(query.toLowerCase()) > -1;
+      })
+      .slice(0, 10);
+    return filterValue.map(({ emoji }: any) => ({ id: emoji }));
+  };
+
   return (
     <StyledPostComment>
       <MentionsInput
@@ -210,6 +234,12 @@ const PostComment = ({
           trigger="@"
           style={mentionsStyles}
           data={userList}
+        />
+        <Mention
+          trigger=":"
+          markup="__id__"
+          regex={notMatchingRegex}
+          data={queryEmojis}
         />
       </MentionsInput>
       <p

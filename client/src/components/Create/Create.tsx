@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  FormEvent,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
@@ -12,15 +6,21 @@ import postApi from "../../api/postApi";
 import uploadFile from "../../api/uploadFile";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { SERVER } from "../../utils/constant";
+import { SERVER, customCreateStyle } from "../../utils/constant";
 import Avatar from "../Avatar/Avatar";
 import Button from "../Button/Button";
 import Modal from "../Modal/Modal";
+import { Mention, MentionsInput } from "react-mentions";
+import mentionsStyles from "../../utils/mentionsStyles";
+import userApi from "../../api/userApi";
+import { UserType } from "../Posts/Post";
+import { UserMentionType } from "../Posts/PostComment";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
 
 const StyledCreate = styled.form`
   width: 50vw;
   max-height: 90vh;
-  overflow-y: auto;
   background-color: white;
   border-radius: 10px;
 
@@ -54,13 +54,13 @@ const StyledCreate = styled.form`
       width: 100%;
 
       textarea {
-        font-size: 1.8rem;
+        font-size: 1.8rem !important;
         width: 100%;
         height: 35px;
-        max-height: 50vh;
         resize: none;
         outline: none;
         border: none;
+        padding: 0 !important;
         &::-webkit-scrollbar {
           display: none;
         }
@@ -76,6 +76,7 @@ const StyledCreate = styled.form`
       border-radius: 4px;
 
       &-item {
+        position: relative;
         label {
           font-size: 2rem;
           cursor: pointer;
@@ -87,6 +88,18 @@ const StyledCreate = styled.form`
 
         .tag-people {
           color: #1877f2;
+        }
+
+        .emoji-popup {
+          position: absolute;
+          bottom: 100%;
+          right: calc(100% + 10px);
+          transform: translateY(50%);
+          z-index: 9999;
+
+          &.d-none {
+            display: none;
+          }
         }
 
         .emoji {
@@ -127,23 +140,38 @@ const Create = ({
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [text, setText] = useState("");
-  const textareaRef = useRef() as React.MutableRefObject<HTMLTextAreaElement>;
-  const [textareaHeight, setTextareaHeight] = useState("auto");
   const [fileNameUploadList, setFileNameUploadList] = useState<FileNameType[]>(
     []
   );
   const [fileUploadList, setFileUploadList] = useState<FormData[]>([]);
   const [fileUrlList, setFileUrlList] = useState<FileUrlType[]>([]);
   const currentUser = useAppSelector((state) => state.auth.currentUser);
+  const [userList, setUserList] = useState<UserMentionType[] | []>([]);
+  const [showEmoji, setShowEmoji] = useState<Boolean>(false);
 
-  useLayoutEffect(() => {
-    setTextareaHeight(`${textareaRef?.current?.scrollHeight}px`);
-  }, [text]);
+  useEffect(() => {
+    try {
+      async function fetchUser() {
+        const { data } = await userApi.getAll();
 
-  function handleChange(e: ChangeEvent<HTMLTextAreaElement>) {
-    setTextareaHeight("auto");
-    setText(e.target.value);
-  }
+        const userMentionList = data.map((user: UserType): UserMentionType => {
+          return {
+            id: user.fullname,
+            display: user.username,
+          };
+        });
+
+        setUserList(userMentionList);
+      }
+
+      fetchUser();
+    } catch (error: any) {
+      if (error.response.status === 401) {
+        navigate("/login");
+        dispatch(authActions.logout());
+      }
+    }
+  }, []);
 
   function changeMultipleFiles(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
@@ -235,6 +263,30 @@ const Create = ({
     });
   };
 
+  const [emojiValue, setEmojiValue] = useState([]);
+  const notMatchingRegex = /($a)/;
+
+  useEffect(() => {
+    fetch(
+      "https://gist.githubusercontent.com/oliveratgithub/0bf11a9aff0d6da7b46f1490f86a71eb/raw/d8e4b78cfe66862cf3809443c1dba017f37b61db/emojis.json"
+    )
+      .then((data) => {
+        return data.json();
+      })
+      .then((jsonData) => {
+        setEmojiValue(jsonData.emojis);
+      });
+  }, []);
+  const queryEmojis = (query: any, callback: any) => {
+    if (query.length === 0) return;
+    const filterValue = emojiValue
+      .filter((emoji: any) => {
+        return emoji.name.indexOf(query.toLowerCase()) > -1;
+      })
+      .slice(0, 10);
+    return filterValue.map(({ emoji }: any) => ({ id: emoji }));
+  };
+
   return (
     <Modal
       visible={create}
@@ -265,16 +317,27 @@ const Create = ({
             <h2>{currentUser?.username}</h2>
           </div>
           <div className="create-post_textarea">
-            <textarea
-              ref={textareaRef}
+            <MentionsInput
+              style={customCreateStyle}
+              value={text || ""}
               name="desc"
-              value={text}
+              onChange={(e) => setText(e.target.value)}
               placeholder={`What's on your mind, ${currentUser?.fullname}?`}
-              onChange={handleChange}
-              style={{
-                height: textareaHeight,
-              }}
-            ></textarea>
+              allowSuggestionsAboveCursor={true}
+            >
+              <Mention
+                displayTransform={(id) => `@${id}`}
+                trigger="@"
+                style={mentionsStyles}
+                data={userList}
+              />
+              <Mention
+                trigger=":"
+                markup="__id__"
+                regex={notMatchingRegex}
+                data={queryEmojis}
+              />
+            </MentionsInput>
           </div>
           {render()}
           <div className="create-post_add-post">
@@ -296,7 +359,18 @@ const Create = ({
                 <i className="bi bi-person-plus-fill"></i>
               </label>
             </div>
-            <div className="create-post_add-post-item">
+            <div
+              className="create-post_add-post-item"
+              onClick={() => setShowEmoji(!showEmoji)}
+            >
+              <div className={`emoji-popup ${showEmoji ? "" : "d-none"}`}>
+                <Picker
+                  data={data}
+                  theme={"light"}
+                  onEmojiSelect={console.log}
+                  previewPosition="none"
+                />
+              </div>
               <label htmlFor="emoji" className="emoji">
                 <i className="bi bi-emoji-smile-fill"></i>
               </label>
