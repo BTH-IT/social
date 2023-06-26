@@ -241,7 +241,10 @@ const Navbar = () => {
           <NavItem
             title="Create"
             toggle={toggle}
-            onClick={() => setCreate(true)}
+            onClick={() => {
+              setCreate(true);
+              document.body.classList.add("stop-scrolling");
+            }}
           >
             {create ? (
               <i className="bi bi-plus-square-fill active"></i>
@@ -280,7 +283,13 @@ const Navbar = () => {
       </StyledNav>
       <Search search={search}></Search>
       <Notification noti={noti}></Notification>
-      <Create create={create} onClose={() => setCreate(!create)}></Create>
+      <Create
+        create={create}
+        onClose={() => {
+          setCreate(!create);
+          document.body.classList.remove("stop-scrolling");
+        }}
+      ></Create>
       {toggle && (
         <div
           className="overlay"

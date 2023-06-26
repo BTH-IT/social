@@ -20,7 +20,7 @@ const PostSlide = ({ width, height, fileUploads }: PostSlideProps) => {
       slidesPerView={1}
       navigation
       pagination={{ clickable: true }}
-      allowTouchMove={false}
+      allowTouchMove={true}
       style={{
         width,
         height,

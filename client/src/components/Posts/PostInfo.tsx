@@ -9,7 +9,6 @@ import { PostType } from "./Post";
 import { authActions } from "../../redux/features/auth/authSlice";
 import notiApi from "../../api/notiApi";
 import { SOCKET_SERVER } from "../../App";
-import { useToggle } from "../../hooks/useToggle";
 
 const StyledPostInteractive = styled.div`
   display: flex;
