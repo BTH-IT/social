@@ -201,7 +201,7 @@ const CommentWithReply = ({
               height: "44px",
               flexShrink: 0,
             }}
-            url={currentUser?.profilePicture}
+            url={currentUser?.profilePicture.url}
           ></Avatar>
           <div>
             <a href={`/${commentParent.userId}`}>

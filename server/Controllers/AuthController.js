@@ -15,8 +15,11 @@ async function registerUser(req, res) {
       password: hashedPass,
       fullname,
       email,
-      profilePicture:
-        "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg",
+      profilePicture: {
+        id: "social/qvcog6uqkqfjnp7h5vo2",
+        url: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg",
+        type: "image",
+      },
     });
 
     await StoryModel.create({ userId: newUser._id });

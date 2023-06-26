@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import Comment from "../Comment/Comment";
-import PostComment from "./PostComment";
+import { useState, useEffect, useRef } from "react";
 import PostHeading from "./PostHeading";
 import PostInfo from "./PostInfo";
 import PostSlide from "./PostSlide";
@@ -9,10 +7,10 @@ import userApi from "../../api/userApi";
 import { Link, useNavigate } from "react-router-dom";
 import { authActions } from "../../redux/features/auth/authSlice";
 import { useAppDispatch } from "../../app/hooks";
-import { SERVER } from "../../utils/constant";
 import { CommentType } from "./PostDetail";
 import { SOCKET_SERVER } from "../../App";
 import { FileUploadsType } from "../Create/Create";
+import PostComment from "./PostComment";
 
 export interface PostType {
   _id: string;
@@ -34,7 +32,7 @@ export interface UserType {
   username: string;
   fullname: string;
   email: string;
-  profilePicture: string;
+  profilePicture: FileUploadsType;
   desc: string;
   posts: string[];
   followers: string[];
@@ -125,7 +123,7 @@ const Post = ({ post }: { post: PostType }) => {
           post={post}
           username={user?.username || ""}
           avatar={
-            user?.profilePicture ||
+            user?.profilePicture.url ||
             "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
           }
         ></PostHeading>

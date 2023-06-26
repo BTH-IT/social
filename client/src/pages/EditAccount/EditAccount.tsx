@@ -181,20 +181,21 @@ const EditAccount = () => {
     if (!currentUser) return;
     const file = (e.target.files as FileList)[0];
     const data = new FormData();
-    const filename = Date.now() + file.name;
-    data.append("name", filename);
     data.append("file", file);
-
-    const newUpdateUser: UserType = {
-      ...currentUser,
-      profilePicture: filename,
-    };
 
     try {
       if (currentUser?._id) {
+        const { data: profilePicture } = await uploadFile(data);
+        const newUpdateUser: UserType = {
+          ...currentUser,
+          profilePicture: profilePicture[0],
+        };
+
         await userApi.update(currentUser?._id, newUpdateUser);
-        await uploadFile(data);
+
+        dispatch(authActions.updateCurrentUser(newUpdateUser));
         localStorage.setItem("current_user", JSON.stringify(newUpdateUser));
+
         window.location.reload();
         toast.success("Update successfully");
       }
@@ -216,7 +217,7 @@ const EditAccount = () => {
             <div className="edit-image" onClick={() => setShowModalPhoto(true)}>
               <img
                 src={
-                  currentUser?.profilePicture ||
+                  currentUser?.profilePicture.url ||
                   "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
                 }
                 alt=""
@@ -285,20 +286,31 @@ const EditAccount = () => {
           <div
             className="red"
             onClick={async () => {
-              if (!currentUser?.profilePicture) return;
+              if (!currentUser) return;
+              if (
+                currentUser.profilePicture.id === "social/qvcog6uqkqfjnp7h5vo2"
+              )
+                return;
 
               const newUpdateUser: UserType = {
                 ...currentUser,
-                profilePicture: "",
+                profilePicture: {
+                  id: "social/qvcog6uqkqfjnp7h5vo2",
+                  url: "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg",
+                  type: "image",
+                },
               };
 
               try {
-                await deleteFile(currentUser?.profilePicture);
+                // await deleteFile(currentUser?.profilePicture);
                 await userApi.update(currentUser._id, newUpdateUser);
+
+                dispatch(authActions.updateCurrentUser(newUpdateUser));
                 localStorage.setItem(
                   "current_user",
                   JSON.stringify(newUpdateUser)
                 );
+
                 window.location.reload();
                 toast.success("Update successfully");
               } catch (error: any) {

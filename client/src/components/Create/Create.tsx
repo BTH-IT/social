@@ -322,8 +322,6 @@ const Create = ({
       return;
     }
 
-    console.log("object");
-
     setDisabledButton(true);
     try {
       const { data: fileUploads } = await uploadFile(fileUploadList);
@@ -396,7 +394,10 @@ const Create = ({
                   width: "44px",
                   height: "44px",
                 }}
-                url={currentUser?.profilePicture}
+                url={
+                  currentUser?.profilePicture.url ||
+                  "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
+                }
               ></Avatar>
               <div className="create-post_info">
                 <h2>{currentUser?.username}</h2>

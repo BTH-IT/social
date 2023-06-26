@@ -20,7 +20,10 @@ const UserSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
-    profilePicture: String,
+    profilePicture: {
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
+    },
     desc: String,
     followers: [],
     followings: [],

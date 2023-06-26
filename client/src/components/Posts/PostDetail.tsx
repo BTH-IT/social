@@ -138,7 +138,7 @@ const PostDetail = ({ post }: { post: PostType }) => {
           <PostHeading
             post={post}
             username={user?.username || ""}
-            avatar={user?.profilePicture || ""}
+            avatar={user?.profilePicture.url || ""}
           ></PostHeading>
         </div>
         <StyledStatus>
@@ -151,7 +151,10 @@ const PostDetail = ({ post }: { post: PostType }) => {
                   height: "44px",
                   flexShrink: 0,
                 }}
-                url={user?.profilePicture || ""}
+                url={
+                  user?.profilePicture.url ||
+                  "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
+                }
               ></Avatar>
               <div>
                 <h6>{user?.fullname}</h6> {post.desc}

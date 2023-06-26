@@ -84,7 +84,7 @@ export const StoryAvatarInfo = ({
         style={style}
         story={1}
         url={
-          user?.profilePicture ||
+          user?.profilePicture.url ||
           "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
         }
       ></AvatarStory>

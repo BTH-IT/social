@@ -101,7 +101,7 @@ const PostDetailMobile = ({ post }: { post: PostType }) => {
           post={post}
           username={user?.username || ""}
           avatar={
-            user?.profilePicture ||
+            user?.profilePicture.url ||
             "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
           }
         ></PostHeading>
