@@ -6,7 +6,7 @@ import deleteFile from "../../api/deleteFile";
 import postApi from "../../api/postApi";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { FileNameType } from "../Create/Create";
+import { FileUploadsType } from "../Create/Create";
 import { PostType } from "./Post";
 
 interface FeaturePostProps {
@@ -57,8 +57,8 @@ const PostFeature = ({ onClose, post }: FeaturePostProps) => {
           onClick={async () => {
             try {
               await postApi.deletePost(post._id, currentUser._id);
-              post.fileUploads.forEach(async (file: FileNameType) => {
-                await deleteFile(file.filename);
+              post.fileUploads.forEach(async (file: FileUploadsType) => {
+                await deleteFile(file.id);
               });
               toast.success("Delete post successfully");
               window.location.reload();

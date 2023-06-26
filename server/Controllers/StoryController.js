@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const StoryModel = require("../Models/StoryModel");
 const UserModel = require("../Models/UserModel");
 const { verifyToken } = require("./AuthController");
+const { cloudinary } = require("../cloudinary.config");
 
 async function createStory(req, res) {
   if (!verifyToken(req)) {
@@ -75,7 +76,15 @@ async function updateExpiredStories(req, res) {
     const date = new Date();
 
     storyList.forEach(async (story) => {
-      const newStories = story.stories.filter((str) => date <= str.expiredAt);
+      const newStories = [];
+
+      story.stories.forEach(async (str) => {
+        if (date <= str.expiredAt) {
+          newStories.push(str);
+        } else {
+          await cloudinary.uploader.destroy(str.fileUploads.id);
+        }
+      });
 
       try {
         await StoryModel.updateOne(

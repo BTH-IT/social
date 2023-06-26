@@ -302,7 +302,8 @@ const EditAccount = () => {
               };
 
               try {
-                // await deleteFile(currentUser?.profilePicture);
+                await deleteFile(currentUser.profilePicture.id);
+
                 await userApi.update(currentUser._id, newUpdateUser);
 
                 dispatch(authActions.updateCurrentUser(newUpdateUser));
