@@ -138,11 +138,7 @@ const PostDetail = ({ post }: { post: PostType }) => {
           <PostHeading
             post={post}
             username={user?.username || ""}
-            avatar={
-              user?.profilePicture
-                ? `${SERVER}files/${user?.profilePicture}`
-                : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
-            }
+            avatar={user?.profilePicture || ""}
           ></PostHeading>
         </div>
         <StyledStatus>
@@ -155,11 +151,7 @@ const PostDetail = ({ post }: { post: PostType }) => {
                   height: "44px",
                   flexShrink: 0,
                 }}
-                url={
-                  user?.profilePicture
-                    ? `${SERVER}files/${user?.profilePicture}`
-                    : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
-                }
+                url={user?.profilePicture || ""}
               ></Avatar>
               <div>
                 <h6>{user?.fullname}</h6> {post.desc}

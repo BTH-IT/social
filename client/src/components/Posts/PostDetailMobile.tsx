@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import userApi from "../../api/userApi";
@@ -12,6 +12,8 @@ import { CommentType } from "./PostDetail";
 import PostHeading from "./PostHeading";
 import PostInfo from "./PostInfo";
 import PostSlide from "./PostSlide";
+import { SOCKET_SERVER } from "../../App";
+import CommentList from "../Comment/CommentList";
 
 const StyledPost = styled.div`
   background-color: white;
@@ -55,6 +57,26 @@ const PostDetailMobile = ({ post }: { post: PostType }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [user, setUser] = useState<UserType | null>(null);
+  const [comments, setComments] = useState<CommentType[] | null>(post.comments);
+  const [content, setContent] = useState("");
+  const commentRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (SOCKET_SERVER) {
+      SOCKET_SERVER.on("added-comment", (socketPost) => {
+        if (socketPost._id === post._id) {
+          setComments(socketPost.comments);
+        }
+      });
+
+      SOCKET_SERVER.on("hearted-comment", (socketPost) => {
+        if (socketPost._id === post._id) {
+          setComments(socketPost.comments);
+        }
+      });
+    }
+  }, []);
+
   useEffect(() => {
     async function fetchUser() {
       if (post.userId) {
@@ -79,9 +101,8 @@ const PostDetailMobile = ({ post }: { post: PostType }) => {
           post={post}
           username={user?.username || ""}
           avatar={
-            user?.profilePicture
-              ? `${SERVER}files/${user?.profilePicture}`
-              : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+            user?.profilePicture ||
+            "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
           }
         ></PostHeading>
 
@@ -98,19 +119,25 @@ const PostDetailMobile = ({ post }: { post: PostType }) => {
             <div className="post-desc">
               <h6>{user?.username}</h6> {post.desc}
             </div>
-            {post.comments &&
-              post.comments.length > 0 &&
-              post.comments.map((comment: CommentType) => (
-                <Comment
-                  comment={comment}
-                  key={comment.id}
+            <div className="status-comments">
+              {comments && comments.length > 0 && (
+                <CommentList
+                  comments={comments}
                   postId={post._id}
-                ></Comment>
-              ))}
+                  commentRef={commentRef}
+                  setContent={setContent}
+                ></CommentList>
+              )}
+            </div>
           </div>
         </PostInfo>
 
-        <PostComment postId={post._id}></PostComment>
+        <PostComment
+          postId={post._id}
+          commentRef={commentRef}
+          content={content}
+          setContent={setContent}
+        ></PostComment>
       </StyledPost>
     </>
   );

@@ -1,4 +1,4 @@
-import { FileNameType } from "../components/Create/Create";
+import { FileUploadsType } from "../components/Create/Create";
 import axiosClient from "./axiosClient";
 
 const storyApi = {
@@ -18,7 +18,7 @@ const storyApi = {
       },
     });
   },
-  createStory(data: { userId: string; stories: FileNameType[] }) {
+  createStory(data: { userId: string; stories: FileUploadsType[] }) {
     return axiosClient.post("/story", data, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("access_token")}`

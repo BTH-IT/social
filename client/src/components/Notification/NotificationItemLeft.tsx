@@ -50,10 +50,7 @@ const NotificationItemLeft = ({
     return (
       <StyledNotificationPost href={`/p/${post._id}`}>
         {post.fileUploads.length > 0 && post.fileUploads[0].type === "image" ? (
-          <img
-            src={`${SERVER}files/${post.fileUploads[0].filename}`}
-            alt="post"
-          />
+          <img src={post.fileUploads[0].url} alt={post.fileUploads[0].id} />
         ) : (
           <i className="bi bi-file-post-fill"></i>
         )}

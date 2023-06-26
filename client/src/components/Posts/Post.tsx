@@ -9,10 +9,10 @@ import userApi from "../../api/userApi";
 import { Link, useNavigate } from "react-router-dom";
 import { authActions } from "../../redux/features/auth/authSlice";
 import { useAppDispatch } from "../../app/hooks";
-import { FileNameType } from "../Create/Create";
 import { SERVER } from "../../utils/constant";
 import { CommentType } from "./PostDetail";
 import { SOCKET_SERVER } from "../../App";
+import { FileUploadsType } from "../Create/Create";
 
 export interface PostType {
   _id: string;
@@ -21,7 +21,7 @@ export interface PostType {
   saved: string[];
   likes: string[];
   comments: [];
-  fileUploads: FileNameType[];
+  fileUploads: FileUploadsType[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -125,9 +125,8 @@ const Post = ({ post }: { post: PostType }) => {
           post={post}
           username={user?.username || ""}
           avatar={
-            user?.profilePicture
-              ? `${SERVER}files/${user?.profilePicture}`
-              : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+            user?.profilePicture ||
+            "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
           }
         ></PostHeading>
 

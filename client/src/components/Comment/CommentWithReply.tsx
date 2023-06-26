@@ -201,11 +201,7 @@ const CommentWithReply = ({
               height: "44px",
               flexShrink: 0,
             }}
-            url={
-              currentUser?.profilePicture
-                ? `${SERVER}files/${currentUser?.profilePicture}`
-                : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
-            }
+            url={currentUser?.profilePicture}
           ></Avatar>
           <div>
             <a href={`/${commentParent.userId}`}>

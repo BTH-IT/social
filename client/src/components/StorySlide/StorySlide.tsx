@@ -54,7 +54,6 @@ const StorySlide = ({ stories }: { stories: StoriesType[] }) => {
       <Stories
         keyboardNavigation
         defaultInterval={8000}
-        onAllStoriesEnd={() => history.back()}
         stories={stories}
         storyContainerStyles={{
           borderRadius: 8,
@@ -64,32 +63,6 @@ const StorySlide = ({ stories }: { stories: StoriesType[] }) => {
         }}
         width={"100%"}
       />
-      {/* <Swiper
-        effect="coverflow"
-        grabCursor={true}
-        centeredSlides={true}
-        slidesPerView={"auto"}
-        coverflowEffect={{
-          rotate: 0,
-          stretch: 0,
-          depth: 250,
-          modifier: 2.5,
-        }}
-        navigation={{
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
-          enabled: true,
-        }}
-        modules={[EffectCoverflow, Navigation]}
-        className="swiper_container"
-      >
-        <SwiperSlide>
-          
-        <div className="slider-controler">
-          <div className="swiper-button-prev slider-arrow"></div>
-          <div className="swiper-button-next slider-arrow"></div>
-        </div>
-      </Swiper> */}
     </StyledStorySlide>
   );
 };

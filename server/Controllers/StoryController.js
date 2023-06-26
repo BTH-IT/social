@@ -20,7 +20,7 @@ async function createStory(req, res) {
     if (story) {
       const stories = req.body.stories.map((str) => {
         return {
-          filenameUploads: str,
+          fileUploads: str,
           createdAt: req.body.createAt,
           expiredAt: req.body.expiredAt,
         };

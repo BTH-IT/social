@@ -97,7 +97,6 @@ const Signup = () => {
       toast.success("Wellcome to the website!!");
       navigate("/login");
     } catch (error: any) {
-      console.log(error.message);
       toast.error("This account or email is already existed!!");
     }
   };

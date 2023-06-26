@@ -56,24 +56,25 @@ const StoriesPage = () => {
 
           const storyArray = stories.map(
             (story: {
-              filenameUploads: {
+              fileUploads: {
                 type: string;
-                filename: string;
+                url: string;
+                id: string;
               };
               createdAt: string;
             }) => {
               return {
-                url: `${SERVER}files/${story.filenameUploads.filename}`,
-                type: story.filenameUploads.type,
+                url: story.fileUploads.url,
+                type: story.fileUploads.type,
                 header: {
                   heading: user?.username,
                   subheading: user?.fullname,
-                  profileImage: user?.profilePicture
-                    ? `${SERVER}files/${user?.profilePicture}`
-                    : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg",
+                  profileImage:
+                    user?.profilePicture ||
+                    "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg",
                 },
                 duration:
-                  story.filenameUploads.type === "image" ? 10000 : undefined,
+                  story.fileUploads.type === "image" ? 10000 : undefined,
               };
             }
           );

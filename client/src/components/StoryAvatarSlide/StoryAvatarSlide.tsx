@@ -12,10 +12,9 @@ import uploadFile from "../../api/uploadFile";
 import { authActions } from "../../redux/features/auth/authSlice";
 import { toast } from "react-toastify";
 import storyApi from "../../api/storyApi";
-import { FileNameType } from "../Create/Create";
+import { FileUploadsType } from "../Create/Create";
 import userApi from "../../api/userApi";
 import { UserType } from "../Posts/Post";
-import { SERVER } from "../../utils/constant";
 import AvatarStory from "../Avatar/AvatarStory";
 
 const StyledCreateStory = styled.label`
@@ -46,7 +45,7 @@ const StyledForm = styled.form`
 export interface StoryType {
   _id: string;
   userId: string;
-  stories: FileNameType[];
+  stories: FileUploadsType[];
   createdAt: string;
   updatedAt: string;
 }
@@ -85,9 +84,8 @@ export const StoryAvatarInfo = ({
         style={style}
         story={1}
         url={
-          user?.profilePicture
-            ? `${SERVER}files/${user?.profilePicture}`
-            : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+          user?.profilePicture ||
+          "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
         }
       ></AvatarStory>
       <span className="story-name">{user?.username}</span>
@@ -100,26 +98,19 @@ const StoryAvatarSlide = () => {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [fileUpload, setFileUpload] = useState<FormData[]>([]);
-  const [fileNameUpload, setFileNameUpload] = useState<FileNameType[]>([]);
+  const [fileUpload, setFileUpload] = useState<FormData | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const [stories, setStories] = useState<StoryType[]>([]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFileUpload = Array.from(e.target.files).map((file) => {
-        const data = new FormData();
-        const filename = Date.now() + file.name;
-        data.append("name", filename);
+      const data = new FormData();
+      Array.from(e.target.files).forEach((file) => {
         data.append("file", file);
-        fileNameUpload.push({
-          type: file.type.split("/")[0],
-          filename,
-        });
         return data;
       });
-      setFileUpload(newFileUpload);
-      setFileNameUpload(fileNameUpload);
+      setFileUpload(data);
       setShowModal(true);
     }
   };
@@ -129,25 +120,16 @@ const StoryAvatarSlide = () => {
     if (inputRef.current) {
       inputRef.current.value = "";
     }
-    if (!currentUser?._id) return;
+    if (!currentUser?._id || !fileUpload) return;
 
-    const story = {
-      userId: currentUser._id,
-      stories: fileNameUpload,
-    };
-
-    fileUpload.forEach(async (data) => {
-      try {
-        await uploadFile(data);
-      } catch (error: any) {
-        if (error.response.status === 401) {
-          navigate("/login");
-          dispatch(authActions.logout());
-        }
-      }
-    });
-
+    setIsDisabled(true);
     try {
+      const { data: stories } = await uploadFile(fileUpload);
+
+      const story = {
+        userId: currentUser._id,
+        stories,
+      };
       await storyApi.createStory(story);
       setShowModal(false);
       toast.success("Create your story successfully");
@@ -158,6 +140,8 @@ const StoryAvatarSlide = () => {
       } else {
         toast.error("There is something wrong here");
       }
+    } finally {
+      setIsDisabled(false);
     }
   };
 
@@ -232,13 +216,8 @@ const StoryAvatarSlide = () => {
         overlay={true}
         hasIconClose={true}
       >
-        <StyledForm
-          action="/upload"
-          encType="multipart/form-data"
-          method="POST"
-          onSubmit={handleSubmit}
-        >
-          <Button primary={1} className="btn-story">
+        <StyledForm onSubmit={handleSubmit}>
+          <Button primary={1} className="btn-story" disabled={isDisabled}>
             Create your story
           </Button>
         </StyledForm>

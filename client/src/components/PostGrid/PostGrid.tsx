@@ -92,14 +92,11 @@ const PostGrid = () => {
               <>
                 {post.fileUploads[0].type === "image" ? (
                   <img
-                    src={`${SERVER}files/${post.fileUploads[0].filename}`}
-                    alt=""
+                    src={post.fileUploads[0].url}
+                    alt={post.fileUploads[0].id}
                   />
                 ) : (
-                  <video
-                    src={`${SERVER}files/${post.fileUploads[0].filename}`}
-                    controls
-                  ></video>
+                  <video src={post.fileUploads[0].url} controls></video>
                 )}
               </>
             ) : (

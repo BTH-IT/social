@@ -3,13 +3,13 @@ import { Navigation, Pagination } from "swiper";
 import "swiper/scss";
 import "swiper/scss/navigation";
 import "swiper/scss/pagination";
-import { FileNameType } from "../Create/Create";
+import { FileUploadsType } from "../Create/Create";
 import { SERVER } from "../../utils/constant";
 
 interface PostSlideProps {
   width: string;
   height: string;
-  fileUploads: FileNameType[];
+  fileUploads: FileUploadsType[];
 }
 
 const PostSlide = ({ width, height, fileUploads }: PostSlideProps) => {
@@ -34,21 +34,13 @@ const PostSlide = ({ width, height, fileUploads }: PostSlideProps) => {
               width,
               height,
             }}
-            key={"bth" + file.filename + "3103"}
+            key={file.id}
           >
             <div className="post-image">
               {file.type === "image" ? (
-                <img
-                  src={`${SERVER}files/${file.filename}`}
-                  alt=""
-                  className="post-img"
-                />
+                <img src={file.url} alt={file.id} className="post-img" />
               ) : (
-                <video
-                  src={`${SERVER}files/${file.filename}`}
-                  className="post-img"
-                  controls
-                ></video>
+                <video src={file.url} className="post-img" controls></video>
               )}
             </div>
           </SwiperSlide>

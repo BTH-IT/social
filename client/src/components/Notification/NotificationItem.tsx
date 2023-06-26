@@ -57,11 +57,7 @@ const NotificationItem = ({ notiInfo }: { notiInfo: NotificationItemType }) => {
               width: "44px",
               height: "44px",
             }}
-            url={
-              notiInfo.userAction.profilePicture
-                ? `${SERVER}files/${notiInfo.userAction.profilePicture}`
-                : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
-            }
+            url={notiInfo.userAction.profilePicture}
           ></AvatarStory>
         </Link>
       ) : (
@@ -71,11 +67,7 @@ const NotificationItem = ({ notiInfo }: { notiInfo: NotificationItemType }) => {
             width: "44px",
             height: "44px",
           }}
-          url={
-            notiInfo.userAction.profilePicture
-              ? `${SERVER}files/${notiInfo.userAction.profilePicture}`
-              : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
-          }
+          url={notiInfo.userAction.profilePicture}
         ></Avatar>
       )}
       <div className="notification-item_content">

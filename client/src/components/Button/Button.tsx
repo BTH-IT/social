@@ -4,6 +4,7 @@ interface ButtonProps {
   className?: String;
   primary?: 1 | 0;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 const StyledButton = styled.button<{ primary?: 1 | 0 }>`
@@ -19,12 +20,19 @@ const StyledButton = styled.button<{ primary?: 1 | 0 }>`
   font-weight: 600;
 `;
 
-const Button = ({ children, className, primary, onClick }: ButtonProps) => {
+const Button = ({
+  children,
+  className,
+  primary,
+  onClick,
+  disabled,
+}: ButtonProps) => {
   return (
     <StyledButton
       className={`${className}`}
       primary={primary}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </StyledButton>

@@ -111,9 +111,8 @@ const AvatarInfo = ({ user }: { user: UserType }) => {
             width: "36px",
           }}
           url={
-            user?.profilePicture
-              ? `${SERVER}files/${user?.profilePicture}`
-              : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+            user?.profilePicture ||
+            "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
           }
         ></AvatarStory>
         <span>{user?.username}</span>

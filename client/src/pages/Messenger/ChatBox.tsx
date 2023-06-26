@@ -133,9 +133,8 @@ const ChatBox = ({
                   height: "44px",
                 }}
                 url={
-                  otherUser?.profilePicture
-                    ? `${SERVER}files/${otherUser?.profilePicture}`
-                    : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+                  otherUser?.profilePicture ||
+                  "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
                 }
               ></Avatar>
               <div className="messenger-right-heading_name">

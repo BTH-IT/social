@@ -20,7 +20,7 @@ const UserSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
-    profilePicture: String | "",
+    profilePicture: String,
     desc: String,
     followers: [],
     followings: [],

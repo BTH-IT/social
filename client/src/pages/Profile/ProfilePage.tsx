@@ -334,9 +334,8 @@ const ProfilePage = () => {
                   height: "150px",
                 }}
                 url={
-                  user?.profilePicture
-                    ? `${SERVER}files/${user?.profilePicture}`
-                    : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+                  user?.profilePicture ||
+                  "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
                 }
               ></AvatarStory>
             </Link>
@@ -347,9 +346,8 @@ const ProfilePage = () => {
                 height: "150px",
               }}
               url={
-                user?.profilePicture
-                  ? `${SERVER}files/${user?.profilePicture}`
-                  : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+                user?.profilePicture ||
+                "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
               }
             ></Avatar>
           )}

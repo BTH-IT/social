@@ -23,12 +23,14 @@ import { UserType } from "../Posts/Post";
 import { useClickOutside } from "../../hooks/useClickOutside";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import { AxiosResponse } from "axios";
 
 const StyledCreate = styled.form`
   width: 50vw;
   max-height: 90vh;
   background-color: white;
   border-radius: 10px;
+  overflow-y: auto;
 
   .create-heading {
     font-size: 2.4rem;
@@ -131,6 +133,17 @@ const StyledCreate = styled.form`
       }
     }
 
+    &_preview {
+      max-height: 300px;
+      overflow-y: auto;
+      img,
+      video {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+      }
+    }
+
     @media screen and (max-width: 526px) {
       padding: 10px;
       h2 {
@@ -190,7 +203,7 @@ const StyledTagUser = styled.div`
 export interface CreateType {
   userId?: string;
   desc: string;
-  fileUploads?: FileNameType[];
+  fileUploads?: AxiosResponse<any, any>;
 }
 
 export interface FileUrlType {
@@ -198,9 +211,10 @@ export interface FileUrlType {
   url: string;
 }
 
-export interface FileNameType {
+export interface FileUploadsType {
+  id: string;
+  url: string;
   type: string;
-  filename: string;
 }
 
 const Create = ({
@@ -213,10 +227,8 @@ const Create = ({
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [text, setText] = useState("");
-  const [fileNameUploadList, setFileNameUploadList] = useState<FileNameType[]>(
-    []
-  );
-  const [fileUploadList, setFileUploadList] = useState<FormData[]>([]);
+  const [disabledButton, setDisabledButton] = useState<boolean>(false);
+  const [fileUploadList, setFileUploadList] = useState<FormData | null>(null);
   const [fileUrlList, setFileUrlList] = useState<FileUrlType[]>([]);
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const [userList, setUserList] = useState<UserMentionType[] | []>([]);
@@ -273,67 +285,62 @@ const Create = ({
   }, []);
 
   function changeMultipleFiles(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files) {
+    if (e.target.files && e.target.files.length <= 5) {
+      const data = new FormData();
       Array.from(e.target.files).forEach((file) => {
-        const data = new FormData();
-        const filename = Date.now() + file.name;
-        data.append("name", filename);
         data.append("file", file);
-        fileNameUploadList.push({
-          type: file.type.split("/")[0],
-          filename,
-        });
-        fileUploadList.push(data);
         fileUrlList.push({
           type: file.type.split("/")[0],
           url: URL.createObjectURL(file),
         });
       });
 
-      setFileNameUploadList([...fileNameUploadList]);
-      setFileUploadList([...fileUploadList]);
+      setFileUploadList(data);
       setFileUrlList([...fileUrlList]);
+    } else {
+      toast.warning(
+        "Please make sure that you can upload less than or equal to 5 files"
+      );
     }
   }
 
   function reset() {
     setText("");
-    setFileNameUploadList([]);
-    setFileUploadList([]);
+    setFileUploadList(null);
     setFileUrlList([]);
   }
 
   const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!text || !currentUser?._id) return;
+    if (
+      !text ||
+      !currentUser?._id ||
+      !fileUploadList ||
+      !fileUploadList.has("file")
+    ) {
+      toast.error("Please make sure that you have entered all the fields");
+      return;
+    }
 
-    const post = {
-      userId: currentUser._id,
-      desc: text,
-      fileUploads: fileNameUploadList,
-      feeling: emoji,
-      tagUser,
-    };
+    console.log("object");
 
-    fileUploadList.forEach(async (data) => {
-      try {
-        await uploadFile(data);
-      } catch (error: any) {
-        if (error.response.status === 401) {
-          navigate("/login");
-          dispatch(authActions.logout());
-        } else {
-          toast.error("There is something wrong here");
-        }
-      }
-    });
-
+    setDisabledButton(true);
     try {
+      const { data: fileUploads } = await uploadFile(fileUploadList);
+
+      const post = {
+        userId: currentUser._id,
+        desc: text,
+        fileUploads,
+        feeling: emoji,
+        tagUser,
+      };
+
       await postApi.createPost(post);
+
       onClose();
       reset();
       toast.success("Create a post successfully");
-      window.location.reload();
     } catch (error: any) {
       if (error.response.status === 401) {
         navigate("/login");
@@ -341,6 +348,8 @@ const Create = ({
       } else {
         toast.error("There is something wrong here");
       }
+    } finally {
+      setDisabledButton(false);
     }
   };
 
@@ -387,11 +396,7 @@ const Create = ({
                   width: "44px",
                   height: "44px",
                 }}
-                url={
-                  currentUser?.profilePicture
-                    ? `${SERVER}files/${currentUser?.profilePicture}`
-                    : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
-                }
+                url={currentUser?.profilePicture}
               ></Avatar>
               <div className="create-post_info">
                 <h2>{currentUser?.username}</h2>
@@ -442,7 +447,7 @@ const Create = ({
                 />
               </MentionsInput>
             </div>
-            {render()}
+            <div className="create-post_preview">{render()}</div>
             <div className="create-post_add-post">
               <div className="create-post_add-post-item">
                 <label htmlFor="images" className="images">
@@ -454,7 +459,7 @@ const Create = ({
                   id="images"
                   multiple
                   onChange={changeMultipleFiles}
-                  accept="audio/*,video/*,image/*"
+                  accept="video/*,image/*"
                 />
               </div>
               <div className="create-post_add-post-item">
@@ -497,7 +502,9 @@ const Create = ({
                 </label>
               </div>
             </div>
-            <Button primary={1}>Post</Button>
+            <Button primary={1} disabled={disabledButton}>
+              Post
+            </Button>
           </div>
         </StyledCreate>
       </Modal>

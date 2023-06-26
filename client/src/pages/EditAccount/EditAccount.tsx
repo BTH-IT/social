@@ -216,9 +216,8 @@ const EditAccount = () => {
             <div className="edit-image" onClick={() => setShowModalPhoto(true)}>
               <img
                 src={
-                  currentUser?.profilePicture
-                    ? `${SERVER}files/${currentUser?.profilePicture}`
-                    : "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
+                  currentUser?.profilePicture ||
+                  "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
                 }
                 alt=""
                 className="edit-img"
