@@ -79,7 +79,7 @@ const Signup = () => {
   const {
     control,
     handleSubmit,
-    formState: { isValid },
+    formState: { isValid, isSubmitting },
   } = useForm<SignType>({
     defaultValues: {
       email: "",
@@ -90,7 +90,7 @@ const Signup = () => {
   });
 
   const handleSignUp = async (values: SignType) => {
-    if (!isValid) return;
+    if (!isValid || isSubmitting) return;
 
     try {
       await authApi.register(values);

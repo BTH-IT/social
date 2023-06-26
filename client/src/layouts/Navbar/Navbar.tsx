@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Search from "../../components/Search/Search";
 import NavItem from "../../components/Nav/NavItem/NavItem";
@@ -11,7 +11,6 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { SERVER } from "../../utils/constant";
 
 const StyledNav = styled.div`
   padding: 8px 12px 20px 12px;
@@ -264,7 +263,7 @@ const Navbar = () => {
           >
             <StyledAvatar
               src={
-                user?.profilePicture.url ||
+                user?.profilePicture?.url ||
                 "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
               }
             ></StyledAvatar>

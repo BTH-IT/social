@@ -63,13 +63,14 @@ const PostComment = ({
   content: string;
   setContent: React.Dispatch<React.SetStateAction<string>>;
 }) => {
-  if (!commentRef) return;
+  if (!commentRef) return <></>;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const postBtnRef = useRef<HTMLDivElement | null>(null);
   const [userList, setUserList] = useState<UserMentionType[] | []>([]);
   const [emojiValue, setEmojiValue] = useState([]);
+  const [isDisabled, setIsDisabled] = useState<boolean>(false);
   const notMatchingRegex = /($a)/;
 
   useEffect(() => {
@@ -128,14 +129,10 @@ const PostComment = ({
   };
 
   const handlePostComment = async () => {
-    if (!content) return;
+    if (!content || isDisabled) return;
 
-    // const newContent = content.replace(
-    //   /(\[|\]|\(([A-Za-z1-9\s]|[^\u0000-\u007F]+)+\))/g,
-    //   ""
-    // );
-
-    if (currentUser?.username && currentUser?._id) {
+    if (currentUser && currentUser?.username && currentUser?._id) {
+      setIsDisabled(true);
       let parentId = undefined;
       const commentUserId = commentRef.current?.dataset.userId;
 
@@ -198,6 +195,8 @@ const PostComment = ({
           navigate("/login");
           dispatch(authActions.logout());
         }
+      } finally {
+        setIsDisabled(false);
       }
     }
   };
@@ -213,43 +212,47 @@ const PostComment = ({
   };
 
   return (
-    <StyledPostComment>
-      <MentionsInput
-        style={customStyle}
-        value={content || ""}
-        onChange={(e) => handleTyping(e as React.ChangeEvent<HTMLInputElement>)}
-        onKeyPress={async (e) => {
-          if (e.code === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-
-            await handlePostComment();
-            return;
+    <>
+      <StyledPostComment>
+        <MentionsInput
+          style={customStyle}
+          value={content || ""}
+          onChange={(e) =>
+            handleTyping(e as React.ChangeEvent<HTMLInputElement>)
           }
-        }}
-        inputRef={commentRef}
-        placeholder="Add a comment..."
-      >
-        <Mention
-          displayTransform={(id) => `@${id}`}
-          trigger="@"
-          style={mentionsStyles}
-          data={userList}
-        />
-        <Mention
-          trigger=":"
-          markup="__id__"
-          regex={notMatchingRegex}
-          data={queryEmojis}
-        />
-      </MentionsInput>
-      <p
-        className="post-comment-btn disabled"
-        ref={postBtnRef}
-        onClick={handlePostComment}
-      >
-        Post
-      </p>
-    </StyledPostComment>
+          onKeyPress={async (e) => {
+            if (e.code === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+
+              await handlePostComment();
+              return;
+            }
+          }}
+          inputRef={commentRef}
+          placeholder="Add a comment..."
+        >
+          <Mention
+            displayTransform={(id) => `@${id}`}
+            trigger="@"
+            style={mentionsStyles}
+            data={userList}
+          />
+          <Mention
+            trigger=":"
+            markup="__id__"
+            regex={notMatchingRegex}
+            data={queryEmojis}
+          />
+        </MentionsInput>
+        <p
+          className="post-comment-btn disabled"
+          ref={postBtnRef}
+          onClick={handlePostComment}
+        >
+          Post
+        </p>
+      </StyledPostComment>
+    </>
   );
 };
 

@@ -218,8 +218,13 @@ export const StyledChangePhoto = styled.div`
   }
 `;
 
-const Following = ({ onClick }: { onClick: () => void }) => {
-  const { userId } = useParams();
+const Following = ({
+  onClick,
+  userId,
+}: {
+  onClick: () => void;
+  userId?: string;
+}) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const currentUser: UserType | null = JSON.parse(
@@ -302,12 +307,30 @@ const ProfilePage = () => {
     async function fetchProfile() {
       try {
         if (userId) {
-          const resUser = await userApi.get(userId);
-          const resPosts = await postApi.getYourTimeline(userId);
-          const resStory = await storyApi.getStoryByUserId(userId);
-          setUser(resUser.data);
-          setPosts(resPosts.data);
-          setStory(resStory.data);
+          let resUser;
+          try {
+            resUser = await userApi.get(userId);
+          } catch (error) {
+            try {
+              const { data } = await userApi.getUserIdByUsername(userId);
+              navigate("/" + data, { replace: true });
+            } catch (error: any) {
+              if (error.response.status === 404) {
+                navigate("/");
+              } else if (error.response.status === 401) {
+                navigate("/login");
+                dispatch(authActions.logout());
+              }
+            }
+          }
+
+          if (resUser) {
+            const resPosts = await postApi.getYourTimeline(userId);
+            const resStory = await storyApi.getStoryByUserId(userId);
+            setUser(resUser.data);
+            setPosts(resPosts.data);
+            setStory(resStory.data);
+          }
         }
       } catch (error: any) {
         if (error.response.status === 404) {
@@ -334,7 +357,7 @@ const ProfilePage = () => {
                   height: "150px",
                 }}
                 url={
-                  user?.profilePicture.url ||
+                  user?.profilePicture?.url ||
                   "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
                 }
               ></AvatarStory>
@@ -346,7 +369,7 @@ const ProfilePage = () => {
                 height: "150px",
               }}
               url={
-                user?.profilePicture.url ||
+                user?.profilePicture?.url ||
                 "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
               }
             ></Avatar>
@@ -364,7 +387,10 @@ const ProfilePage = () => {
                   Edit profile
                 </Button>
               ) : (
-                <Following onClick={() => setShowModalCheck(true)}></Following>
+                <Following
+                  userId={userId}
+                  onClick={() => setShowModalCheck(true)}
+                ></Following>
               )}
             </div>
             <div className="profile-stats">

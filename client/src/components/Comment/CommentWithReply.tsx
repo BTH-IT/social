@@ -6,7 +6,7 @@ import postApi from "../../api/postApi";
 import userApi from "../../api/userApi";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { SERVER } from "../../utils/constant";
+import { SERVER, fetchUserMentions } from "../../utils/constant";
 import Avatar from "../Avatar/Avatar";
 import { CommentType } from "../Posts/PostDetail";
 import { SOCKET_SERVER } from "../../App";
@@ -95,32 +95,8 @@ const CommentWithReply = ({
 
   useEffect(() => {
     async function fetchUser() {
-      if (commentParent.content !== "") {
-        const regex = /@\[.+?\]\(.+?\)/gm;
-        const displayRegex = /@\[.+?\]/g;
-        const idRegex = /\(.+?\)/g;
-        const matches = commentParent.content.match(regex);
-        const arr: any[] = [];
-        matches?.forEach((m: any) => {
-          const id = m.match(idRegex)[0].replace("(", "").replace(")", "");
-          const display = m
-            .match(displayRegex)[0]
-            .replace("@[", "")
-            .replace("]", "");
-          arr.push({ id: id, display: display });
-        });
-        const newComment = commentParent.content.split(regex);
-        let output = "";
-        for (let i = 0; i < newComment.length; i++) {
-          const c = newComment[i];
-          if (i === newComment.length - 1) output += c;
-          else {
-            const { data } = await userApi.getUserIdByUsername(arr[i].display);
-            output += c + `<a href="/${data}">@${arr[i].display}</a>`;
-          }
-        }
-        setCommentContent(output);
-      }
+      const output = await fetchUserMentions(commentParent.content);
+      if (output) setCommentContent(output);
     }
 
     fetchUser();
@@ -201,7 +177,7 @@ const CommentWithReply = ({
               height: "44px",
               flexShrink: 0,
             }}
-            url={currentUser?.profilePicture.url}
+            url={currentUser?.profilePicture?.url}
           ></Avatar>
           <div>
             <a href={`/${commentParent.userId}`}>
@@ -211,9 +187,7 @@ const CommentWithReply = ({
               dangerouslySetInnerHTML={{
                 __html: commentContent.replace(/\n\r?/g, "<br />"),
               }}
-            >
-              {/* {commentContent} */}
-            </span>
+            ></span>
             <StyledInteractive>
               <StyledTime>
                 {moment(commentParent.createdAt).fromNow()}

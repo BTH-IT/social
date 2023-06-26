@@ -70,7 +70,7 @@ const StoriesPage = () => {
                   heading: user?.username,
                   subheading: user?.fullname,
                   profileImage:
-                    user?.profilePicture.url ||
+                    user?.profilePicture?.url ||
                     "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg",
                 },
                 duration:

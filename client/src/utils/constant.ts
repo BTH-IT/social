@@ -1,8 +1,8 @@
 import merge from "lodash.merge";
-import { io } from "socket.io-client";
 import mentionsInputStyles from "./mentionsInputStyles";
+import userApi from "../api/userApi";
 
-export const SERVER = "http://localhost:8080/";
+export const SERVER = "https://bth-social-server.onrender.com/";
 
 export const customStyle = merge({}, mentionsInputStyles, {
   input: {
@@ -86,3 +86,32 @@ export const customCreateStyle = merge({}, {
     boxSizing: "border-box",
   },
 });
+
+export async function fetchUserMentions(content: string) {
+  if (content !== "") {
+    const regex = /@\[.+?\]\(.+?\)/gm;
+    const displayRegex = /@\[.+?\]/g;
+    const idRegex = /\(.+?\)/g;
+    const matches = content.match(regex);
+    const arr: any[] = [];
+    matches?.forEach((m: any) => {
+      const id = m.match(idRegex)[0].replace("(", "").replace(")", "");
+      const display = m
+        .match(displayRegex)[0]
+        .replace("@[", "")
+        .replace("]", "");
+      arr.push({ id: id, display: display });
+    });
+    const newComment = content.split(regex);
+    let output = "";
+    for (let i = 0; i < newComment.length; i++) {
+      const c = newComment[i];
+      if (i === newComment.length - 1) output += c;
+      else {
+        const { data } = await userApi.getUserIdByUsername(arr[i].display);
+        output += c + `<a href="/${data}">@${arr[i].display}</a>`;
+      }
+    }
+    return output;
+  }
+}

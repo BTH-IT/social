@@ -125,14 +125,14 @@ const PostHeading = ({
                   {post.tagUser.map((usr, idx) => {
                     if (idx === 0) {
                       return (
-                        <span>
+                        <span key={usr + idx + post.createdAt}>
                           <a href={`/${usr}`}>{usr}</a>
                         </span>
                       );
                     }
 
                     return (
-                      <span>
+                      <span key={usr + idx + post.createdAt}>
                         ,<a href={`/${usr}`}>{usr}</a>
                       </span>
                     );

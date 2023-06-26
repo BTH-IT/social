@@ -10,6 +10,7 @@ const Posts = () => {
   const navigate = useNavigate();
   const currentUser = useAppSelector((state) => state.auth.currentUser);
   const [postList, setPostList] = useState<PostType[]>([]);
+
   useEffect(() => {
     async function fetchPosts() {
       try {

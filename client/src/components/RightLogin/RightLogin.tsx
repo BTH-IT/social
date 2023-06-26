@@ -67,7 +67,7 @@ const RightLogin = () => {
   const {
     control,
     handleSubmit,
-    formState: { isValid },
+    formState: { isValid, isSubmitting },
   } = useForm<LoginType>({
     defaultValues: {
       email: "",
@@ -78,7 +78,7 @@ const RightLogin = () => {
   });
 
   const handleLogin = async (values: LoginType) => {
-    if (!isValid) return;
+    if (!isValid || isSubmitting) return;
 
     dispatch(authActions.login(values));
   };

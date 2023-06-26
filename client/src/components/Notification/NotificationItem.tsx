@@ -57,7 +57,7 @@ const NotificationItem = ({ notiInfo }: { notiInfo: NotificationItemType }) => {
               width: "44px",
               height: "44px",
             }}
-            url={notiInfo.userAction.profilePicture.url}
+            url={notiInfo.userAction.profilePicture?.url}
           ></AvatarStory>
         </Link>
       ) : (
@@ -67,7 +67,7 @@ const NotificationItem = ({ notiInfo }: { notiInfo: NotificationItemType }) => {
             width: "44px",
             height: "44px",
           }}
-          url={notiInfo.userAction.profilePicture.url}
+          url={notiInfo.userAction.profilePicture?.url}
         ></Avatar>
       )}
       <div className="notification-item_content">

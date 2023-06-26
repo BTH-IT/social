@@ -395,7 +395,7 @@ const Create = ({
                   height: "44px",
                 }}
                 url={
-                  currentUser?.profilePicture.url ||
+                  currentUser?.profilePicture?.url ||
                   "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
                 }
               ></Avatar>

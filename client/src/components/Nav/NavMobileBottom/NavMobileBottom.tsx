@@ -106,7 +106,7 @@ const NavMobileBottom = () => {
           </i>
         </NavLinkItem>
         <NavLinkItem to={`/${user?._id}`}>
-          <StyledAvatar src={user?.profilePicture.url}></StyledAvatar>
+          <StyledAvatar src={user?.profilePicture?.url}></StyledAvatar>
         </NavLinkItem>
       </StyledNavMobileBottom>
       <Create create={create} onClose={() => setCreate(!create)}></Create>

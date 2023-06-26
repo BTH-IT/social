@@ -25,7 +25,7 @@ const PostDetailPage = React.lazy(
 const Messenger = React.lazy(() => import("./pages/Messenger/Messenger"));
 const PostGrid = React.lazy(() => import("./components/PostGrid/PostGrid"));
 
-export let SOCKET_SERVER = io("http://localhost:5000/");
+export let SOCKET_SERVER = io("https://bth-social-socket.onrender.com/");
 
 function App() {
   const currentUser = useAppSelector((state) => state.auth.currentUser);
@@ -47,7 +47,7 @@ function App() {
 
   useLayoutEffect(() => {
     if (currentUser && currentUser._id) {
-      SOCKET_SERVER = io("http://localhost:5000/");
+      SOCKET_SERVER = io("https://bth-social-socket.onrender.com/");
       SOCKET_SERVER.emit("connected", currentUser._id);
     }
   }, [currentUser]);

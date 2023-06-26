@@ -5,7 +5,6 @@ import styled from "styled-components";
 import userApi from "../../api/userApi";
 import { useAppDispatch } from "../../app/hooks";
 import { authActions } from "../../redux/features/auth/authSlice";
-import { SERVER } from "../../utils/constant";
 import Avatar from "../Avatar/Avatar";
 import { StyledTime } from "../Comment/CommentWithReply";
 import { PostType, UserType } from "./Post";
@@ -138,7 +137,7 @@ const PostDetail = ({ post }: { post: PostType }) => {
           <PostHeading
             post={post}
             username={user?.username || ""}
-            avatar={user?.profilePicture.url || ""}
+            avatar={user?.profilePicture?.url || ""}
           ></PostHeading>
         </div>
         <StyledStatus>
@@ -152,7 +151,7 @@ const PostDetail = ({ post }: { post: PostType }) => {
                   flexShrink: 0,
                 }}
                 url={
-                  user?.profilePicture.url ||
+                  user?.profilePicture?.url ||
                   "https://res.cloudinary.com/dt4pt2kyl/image/upload/v1687772432/social/qvcog6uqkqfjnp7h5vo2.jpg"
                 }
               ></Avatar>

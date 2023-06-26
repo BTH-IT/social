@@ -11,6 +11,7 @@ import { CommentType } from "./PostDetail";
 import { SOCKET_SERVER } from "../../App";
 import { FileUploadsType } from "../Create/Create";
 import PostComment from "./PostComment";
+import { fetchUserMentions } from "../../utils/constant";
 
 export interface PostType {
   _id: string;
@@ -68,6 +69,12 @@ const StyledPost = styled.div`
       font-size: 1.4rem;
       display: inline-block;
     }
+
+    a {
+      text-decoration: none;
+      color: black;
+      font-weight: 500;
+    }
   }
 
   .post-show-comment {
@@ -88,6 +95,16 @@ const Post = ({ post }: { post: PostType }) => {
   const [comments, setComments] = useState<CommentType[] | null>(post.comments);
   const [content, setContent] = useState("");
   const commentRef = useRef<HTMLInputElement | null>(null);
+  const [descContent, setDescContent] = useState("");
+
+  useEffect(() => {
+    async function fetchUser() {
+      const output = await fetchUserMentions(post.desc);
+      if (output) setDescContent(output);
+    }
+
+    fetchUser();
+  }, [post.desc]);
 
   useEffect(() => {
     async function fetchUser() {
@@ -123,7 +140,7 @@ const Post = ({ post }: { post: PostType }) => {
           post={post}
           username={user?.username || ""}
           avatar={
-            user?.profilePicture.url ||
+            user?.profilePicture?.url ||
             "https://img.myloview.com/stickers/default-avatar-profile-image-vector-social-media-user-icon-400-228654854.jpg"
           }
         ></PostHeading>
@@ -141,7 +158,12 @@ const Post = ({ post }: { post: PostType }) => {
         <PostInfo post={post} hasModal>
           <div className="post-content">
             <div className="post-desc">
-              <h6>{user?.fullname}</h6> {post.desc}
+              <h6>{user?.fullname}</h6>{" "}
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: descContent.replace(/\n\r?/g, "<br />"),
+                }}
+              ></span>
             </div>
             {comments && comments.length > 0 && (
               <Link to={`/p/${post._id}`} className="post-show-comment">
