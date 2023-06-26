@@ -1,8 +1,7 @@
-version: "3"
-
+version: "3.8"
 services:
-  database:
-    image: mongo
+  mongodb:
+    image: "mongo"
     port:
       - "27017:27017"
     volumes:
@@ -17,7 +16,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - database
+      - mongodb
 
   socket:
     build: ./socket
@@ -28,7 +27,7 @@ services:
     ports:
       - "5000:5000"
     depends_on:
-      - database
+      - mongodb
 
   client:
     build: ./client
