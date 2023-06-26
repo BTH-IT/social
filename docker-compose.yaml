@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  database:
+    image: mongo
+    port:
+      - "27017:27017"
+    volumes:
+      - data:/data/db
+  
+  server:
+    build: ./server
+    volumes:
+      - logs:/app/logs
+      - ./server:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+
+  socket:
+    build: ./socket
+    volumes:
+      - logs:/app/logs
+      - ./socket:/app
+      - /app/node_modules
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+
+  client:
+    build: ./client
+    volumes:
+      - ./client/src:/app/src
+    ports:
+      - "5173:5173"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - server
+      - socket
+volumes:
+  data:
+  logs:
